@@ -1,12 +1,17 @@
 const express = require('express');
-const userRoutes = require('./src/routes/user.route');
 const connectDB = require('./db');
+require('dotenv').config();
 
 const app = express();
 
 app.use(express.json());
 
+const userRoutes = require('./src/routes/user.route');
+const vehicleRoutes = require('./src/routes/vehicle.route');
+
 app.use('/users', userRoutes);
+app.use('/vehicles', vehicleRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 

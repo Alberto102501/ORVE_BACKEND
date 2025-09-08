@@ -1,0 +1,60 @@
+const mongoose = require('mongoose');
+
+const VehicleSchema = new mongoose.Schema({
+    status: {
+        type: String,
+        required: true
+    },
+    brand: {
+        type: String,
+        required: true
+    },
+    subBrand: {
+        type: String,
+        required: true
+    },
+    model: {
+        type: String,
+        required: true
+    },
+    series: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    engine: {
+        type: String,
+        required: true
+    },
+    color: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        required: true
+    },
+    rfv: {
+        type: String
+    },
+    plates: {
+        type: String,
+        required: true
+    },
+    condition: {
+        type: String,
+        required: true
+    },
+    annotations: {
+        type: String
+    },
+    accessories: {
+        type: String
+    },
+    category: {
+        type: String,
+        required: true
+    }
+});
+
+module.exports = mongoose.model('vehicles', VehicleSchema, 'vehicles');
