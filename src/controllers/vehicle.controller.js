@@ -53,9 +53,19 @@ exports.getVehicleById = async (req, res) => {
 // Actualizar un vehículo por ID
 exports.updateVehicle = async (req, res) => {
     try {
-        const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedVehicle) {
-            return res.status(404).json({ message: 'Vehículo no encontrado' });
+        const regexVIN = /[A-HJ-NPR-Z0-9]{17}$/;
+        if(regexVIN.test(req.body.series)){
+            //validar que el numero de serie no se repita
+            const existingVehicle = await Vehicle.findOne({ series: req.body.series, _id: { $ne: req.params.id } });
+            if (existingVehicle) {
+                return res.status(409).json({ message: 'El número de serie ya existe' });
+            }
+            const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            if (!updatedVehicle) {
+                return res.status(404).json({ message: 'Vehículo no encontrado' });
+            }
+        }else{
+            return res.status(400).json({ message: 'El número de serie no es válido. Debe tener 17 caracteres y no contener las letras I, O o Q.' });
         }
         res.status(200).json(updatedVehicle);
     } catch (error) {
