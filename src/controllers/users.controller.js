@@ -52,6 +52,25 @@ exports.updateUser = async (req, res) => {
     return res.status(400).json({ success: false, message: 'ID inválido' });
   }
 
+  if (updates.phone) {
+    const phoneRegex = /^\d+$/;
+    const longitud = 10;
+
+    if (updates.phone.length !== longitud) {
+      return res.status(400).json({
+        success: false,
+        message: 'El número de teléfono debe tener 10 dígitos'
+      });
+    }
+
+    if (!phoneRegex.test(updates.phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'El número de teléfono debe contener solo dígitos, sin letras ni símbolos'
+      });
+    }
+  }
+
   try {
     const updatedUser = await User.findByIdAndUpdate(id, updates, {
       new: true,              // Devuelve el documento actualizado
