@@ -1,0 +1,12 @@
+# Dependencias
+node_modules/
+
+# Archivos de configuración locales
+.env
+
+# Directorios de compilación
+dist/
+build/
+
+# Editor de código
+.vscode/
