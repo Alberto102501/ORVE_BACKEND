@@ -1,16 +1,73 @@
+const mongoose = require('mongoose');
+const User = require('../models/users.model');
 
-exports.getUsers = (req, res) => {
-  res.send('Get all users');
-}
+// Obtener todos los usuarios
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al obtener usuarios', error });
+  }
+};
 
-exports.createUser = (req, res) => {
-  res.send('Create a user');
-}
+// Crear un nuevo usuario
+exports.createUser = async (req, res) => {
+  const { name, addres, position, assignment, phone, userType } = req.body;
 
-exports.updateUser = (req, res) => {
-  res.send(`Update user with ID ${req.params.id}`);
-}
+  if (!name || !addres || !position || !assignment || !phone || !userType) {
+    return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios' });
+  }
 
-exports.deleteUser = (req, res) => {
-  res.send(`Delete user with ID ${req.params.id}`);
+  // Validación de formato de teléfono (solo dígitos) y longitud
+  const phoneRegex = /^\d+$/;
+  const longitud = 10;
+  if(phone.length !== longitud){
+    return res.status(400).json({ success: false, message: 'El número de teléfono debe tener 10 dígitos' });
+  }
+
+  if (!phoneRegex.test(phone)) {
+    return res.status(400).json({
+      success: false,
+      message: 'El número de teléfono debe contener solo dígitos, sin letras ni símbolos'
+    });
+  }
+
+  try {
+    const newUser = new User({ name, addres, position, assignment, phone, userType });
+    const savedUser = await newUser.save();
+    res.status(201).json({ success: true, data: savedUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al crear usuario', error });
+  }
+};
+
+//Actualizar un usuario
+exports.updateUser = async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  // Validar formato de ID
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ success: false, message: 'ID inválido' });
+  }
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(id, updates, {
+      new: true,              // Devuelve el documento actualizado
+      runValidators: true     // Aplica validaciones del esquema
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+    }
+
+    res.status(200).json({ success: true, data: updatedUser });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al actualizar usuario', error });
+  }
+};
+
+//Eliminar un usuario
+exports.deleteUser = async (req, res) => {
 }
