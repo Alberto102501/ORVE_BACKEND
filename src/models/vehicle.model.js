@@ -53,7 +53,7 @@ const VehicleSchema = new mongoose.Schema({
         type: String
     },
     accessories: {
-        type: String
+        type: Array
     },
     category: {
         type: String,
