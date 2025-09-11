@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const VehicleSchema = new mongoose.Schema({
+    numEco: {
+        type: String,
+    },
     status: {
         type: String,
         required: true

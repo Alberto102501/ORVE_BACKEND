@@ -64,10 +64,10 @@ exports.updateVehicle = async (req, res) => {
             if (!updatedVehicle) {
                 return res.status(404).json({ message: 'Vehículo no encontrado' });
             }
+            res.status(200).json(updatedVehicle);
         }else{
             return res.status(400).json({ message: 'El número de serie no es válido. Debe tener 17 caracteres y no contener las letras I, O o Q.' });
         }
-        res.status(200).json(updatedVehicle);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
