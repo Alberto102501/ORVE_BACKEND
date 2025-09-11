@@ -25,10 +25,6 @@ const VehicleSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    engine: {
-        type: String,
-        required: true
-    },
     color: {
         type: String,
         required: true
