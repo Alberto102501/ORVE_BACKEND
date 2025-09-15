@@ -12,7 +12,25 @@ exports.createVehicle = async (req, res) => {
                 return res.status(409).json({ message: 'El número de serie ya existe' });
             }
 
-            const newVehicle = new Vehicle(req.body);
+            // Obtener el año actual
+            const currentYear = new Date().getFullYear();
+
+            // Contar todos los vehículos registrados (sin importar el año)
+            const totalVehicles = await Vehicle.countDocuments();
+
+            // Generar número consecutivo con formato 3 dígitos
+            const ecoNumber = String(totalVehicles + 1).padStart(4, '0');
+
+            // Formato final: "001/2025"
+            const shortYear = String(currentYear).slice(-2); // "2025" → "25"
+            const numEco = `${ecoNumber}/${shortYear}`;
+
+
+
+            const newVehicle = new Vehicle({
+            ...req.body,
+            numEco
+            });
             await newVehicle.save();
             res.status(201).json(newVehicle);
         }else{

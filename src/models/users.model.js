@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         match: [/^\d+$/, 'El número de teléfono debe contener solo dígitos']
     },
-    userType:{
+    numberEmployed:{
         type: String,
         required: true
     },
