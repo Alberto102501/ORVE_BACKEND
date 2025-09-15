@@ -33,7 +33,7 @@ const VehicleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    rfv: {
+    rh: {
         type: String
     },
     plates: {
