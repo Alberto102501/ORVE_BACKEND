@@ -90,3 +90,16 @@ exports.updateVehicle = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+// Actualizar parcialmente un vehículo por ID
+exports.patchVehicle = async (req, res) => {
+    try {
+        const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+        if (!updatedVehicle) {
+            return res.status(404).json({ message: 'Vehículo no encontrado' });
+        }
+        res.status(200).json(updatedVehicle);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};

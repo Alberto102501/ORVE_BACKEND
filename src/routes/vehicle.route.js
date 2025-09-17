@@ -14,4 +14,7 @@ router.get('/:id', vehicleController.getVehicleById);
 // Actualizar un vehículo por ID
 router.put('/:id', vehicleController.updateVehicle);
 
+// Actualizar parcialmente un vehículo por ID
+router.patch('/:id', vehicleController.patchVehicle);
+
 module.exports = router;
