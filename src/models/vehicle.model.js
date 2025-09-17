@@ -33,7 +33,7 @@ const VehicleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    rfv: {
+    rh: {
         type: String
     },
     plates: {
@@ -58,6 +58,8 @@ const VehicleSchema = new mongoose.Schema({
         type: String,
         required: true
     }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('vehicles', VehicleSchema, 'vehicles');
