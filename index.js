@@ -15,11 +15,13 @@ app.use(cookieParser());
 const userRoutes = require('./src/routes/user.route');
 const vehicleRoutes = require('./src/routes/vehicle.route');
 const managersRoutes = require('./src/routes/managers/users.route')
+const receiptRoutes = require('./src/routes/receipt.route');
 
 app.use('/managers', managersRoutes);
 
 app.use('/users', userRoutes);
 app.use('/vehicles', vehicleRoutes);
+app.use('/receipts', receiptRoutes);
 
 
 
