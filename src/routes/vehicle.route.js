@@ -14,7 +14,7 @@ router.get('/', vehicleController.getVehicles);
 router.get('/:id', vehicleController.getVehicleById);
 
 // Actualizar un vehículo por ID
-router.put('/:id', vehicleController.updateVehicle);
+router.put('/:id', upload.array('images', 6), vehicleController.updateVehicle);
 
 // Actualizar parcialmente un vehículo por ID
 router.patch('/:id', vehicleController.patchVehicle);

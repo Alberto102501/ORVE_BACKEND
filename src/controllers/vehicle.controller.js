@@ -72,25 +72,57 @@ exports.getVehicleById = async (req, res) => {
 
 // Actualizar un vehículo por ID
 exports.updateVehicle = async (req, res) => {
-    try {
-        const regexVIN = /[A-HJ-NPR-Z0-9]{17}$/;
-        if(regexVIN.test(req.body.series)){
-            //validar que el numero de serie no se repita
-            const existingVehicle = await Vehicle.findOne({ series: req.body.series, _id: { $ne: req.params.id } });
-            if (existingVehicle) {
-                return res.status(409).json({ message: 'El número de serie ya existe' });
-            }
-            const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!updatedVehicle) {
-                return res.status(404).json({ message: 'Vehículo no encontrado' });
-            }
-            res.status(200).json(updatedVehicle);
-        }else{
-            return res.status(400).json({ message: 'El número de serie no es válido. Debe tener 17 caracteres y no contener las letras I, O o Q.' });
-        }
-    } catch (error) {
-        res.status(400).json({ message: error.message });
+  try {
+    const { series, existingImages } = req.body;
+
+    // Validación del número de serie
+    const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
+    if (!vinRegex.test(series)) {
+      return res.status(400).json({ message: 'Número de serie inválido.' });
     }
+
+    // Verificar duplicado
+    const duplicate = await Vehicle.findOne({
+      series,
+      _id: { $ne: req.params.id }
+    });
+
+    if (duplicate) {
+      return res.status(409).json({ message: 'Este número de serie ya está registrado.' });
+    }
+
+    // Obtener vehículo actual
+    const vehicle = await Vehicle.findById(req.params.id);
+    if (!vehicle) {
+      return res.status(404).json({ message: 'Vehículo no encontrado.' });
+    }
+
+    // Procesar imágenes existentes que el usuario decidió conservar
+    const preservedImages = Array.isArray(existingImages)
+      ? existingImages
+      : existingImages
+        ? [existingImages]
+        : [];
+
+    // Procesar nuevas imágenes cargadas
+    const newImagePaths = req.files?.map(file => file.path) || [];
+
+    // Combinar y limitar a máximo 6
+    const updatedImages = [...preservedImages, ...newImagePaths].slice(0, 6);
+
+    // Construir objeto actualizado
+    const updatedData = {
+      ...req.body,
+      images: updatedImages
+    };
+
+    // Actualizar en la base de datos
+    const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+
+    res.status(200).json(updatedVehicle);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };
 
 // Actualizar parcialmente un vehículo por ID
