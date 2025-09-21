@@ -25,11 +25,13 @@ exports.createVehicle = async (req, res) => {
             const shortYear = String(currentYear).slice(-2); // "2025" → "25"
             const numEco = `${ecoNumber}/${shortYear}`;
 
-
+            // Procesar rutas de imágenes
+            const imagePaths = req.files?.map(file => file.path) || [];
 
             const newVehicle = new Vehicle({
             ...req.body,
-            numEco
+            numEco,
+            images: imagePaths
             });
             await newVehicle.save();
             res.status(201).json(newVehicle);

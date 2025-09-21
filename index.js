@@ -1,9 +1,12 @@
 const express = require('express');
 const connectDB = require('./db');
 const cors = require('cors');
+const multer = require('multer');
 require('dotenv').config();
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const path = require('path');
+
 
 const app = express();
 
@@ -11,6 +14,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cookieParser());
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const userRoutes = require('./src/routes/user.route');
 const vehicleRoutes = require('./src/routes/vehicle.route');

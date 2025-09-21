@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+function arrayLimit(val) {
+    return val.length <= 6;
+}
+
 const VehicleSchema = new mongoose.Schema({
     numEco: {
         type: String,
@@ -57,9 +61,17 @@ const VehicleSchema = new mongoose.Schema({
     category: {
         type: String,
         required: true
+    },
+    images: {
+        type: [String], // ahora acepta múltiples rutas
+        validate: [arrayLimit, '{PATH} excede el límite de 6 imágenes']
     }
+
+    
+
 }, {
   timestamps: true
 });
+
 
 module.exports = mongoose.model('vehicles', VehicleSchema, 'vehicles');
