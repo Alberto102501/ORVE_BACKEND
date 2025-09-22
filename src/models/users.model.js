@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { bool } = require('sharp');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -26,6 +27,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    status:{
+        type: Boolean
+    }
 }, {
   timestamps: true
 });
