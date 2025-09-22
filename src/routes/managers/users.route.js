@@ -7,8 +7,8 @@ const Router = express.Router();
 
 Router.get('/users', usersController.getUsers);
 // Router.get('/:id', );
-Router.post('/', usersController.createUser);
-Router.put('/:id', usersController.updateUser);
+Router.post('/users', usersController.createUser);
+Router.put('/users/:id', usersController.updateUser);
 
 Router.post('/login', usersController.login);
 Router.post('/logout', usersController.logout);

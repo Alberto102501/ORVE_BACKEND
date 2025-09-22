@@ -14,12 +14,12 @@ exports.getUsers = async (req, res) => {
 }
 
 exports.createUser = async (req, res) => {
-    const {name, username, password, module, status} = req.body;
+    const {name, username, password, module, status, typeUser} = req.body;
     
     try{
-        const passwordHash = await bcrypt.hash(password, 10); 
+        // const passwordHash = await bcrypt.hash(password, 10); 
 
-        const newUser = new User({name, username, password: passwordHash, module, status});
+        const newUser = new User({name, username, password/*: passwordHash*/, module, status, typeUser});
         const savedUser = await newUser.save();
 
         // const token = await createAccessToken({id: savedUser._id});
