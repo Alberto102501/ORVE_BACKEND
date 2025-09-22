@@ -10,6 +10,30 @@ exports.createReceipt = async (req, res) => {
     }
 };
 
+exports.deleteReceipt = async (req, res) => {
+    try {
+        const deletedReceipt = await Receipt.findByIdAndDelete(req.params.id);
+        if (!deletedReceipt) {
+            return res.status(404).json({ message: 'Resguardo no encontrado (delete)' });
+        }
+        res.status(200).json({ message: 'Resguardo borrado' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.patchReceipt = async (req, res) => {
+    try {
+        const updatedReceipt = await Receipt.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+        if (!updatedReceipt) {
+            return res.status(404).json({ message: 'Resguardo no encontrado (patch)' });
+        }
+        res.status(200).json(updatedReceipt);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
 exports.getReceipts = async (req, res) => {
     try {
         const receipts = await Receipt.find();
@@ -23,7 +47,7 @@ exports.getReceiptById = async (req, res) => {
     try {
         const receipt = await Receipt.findById(req.params.id);
         if (!receipt) {
-            return res.status(404).json({ message: 'Receipt not found' });
+            return res.status(404).json({ message: 'Resguardo no encontrado (get)' });
         }
         res.status(200).json(receipt);
     } catch (error) {
@@ -35,7 +59,7 @@ exports.updateReceipt = async (req, res) => {
     try {
         const updatedReceipt = await Receipt.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedReceipt) {
-            return res.status(404).json({ message: 'Receipt not found' });
+            return res.status(404).json({ message: 'Resguardo no encontrado (update)' });
         }
         res.status(200).json(updatedReceipt);
     } catch (error) {
