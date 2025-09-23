@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 app.use(cookieParser());
 
-app.use('api/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const userRoutes = require('./src/routes/user.route');
 const vehicleRoutes = require('./src/routes/vehicle.route');
