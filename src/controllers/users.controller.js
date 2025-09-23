@@ -13,7 +13,7 @@ exports.getUsers = async (req, res) => {
 
 // Crear un nuevo usuario
 exports.createUser = async (req, res) => {
-  const { name, addres, position, assignment, phone, numberEmployed } = req.body;
+  const { name, addres, position, assignment, phone, numberEmployed, status } = req.body;
 
   if (!name || !addres || !position || !assignment || !phone || !numberEmployed) {
     return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios' });
@@ -34,7 +34,7 @@ exports.createUser = async (req, res) => {
   }
 
   try {
-    const newUser = new User({ name, addres, position, assignment, phone, numberEmployed });
+    const newUser = new User({ name, addres, position, assignment, phone, numberEmployed, status });
     const savedUser = await newUser.save();
     res.status(201).json({ success: true, data: savedUser });
   } catch (error) {
