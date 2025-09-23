@@ -7,6 +7,12 @@ function arrayLimit(val) {
 const VehicleSchema = new mongoose.Schema({
     numEco: {
         type: String,
+        unique: true
+    },
+    ecoSequence: {
+        type: Number,
+        required: true,
+        unique: true
     },
     status: {
         type: String,
@@ -48,6 +54,12 @@ const VehicleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    engine: {
+        type: String
+    },
+    cylinder: {
+        type: String
+    },
     condition: {
         type: String,
         required: true
@@ -72,6 +84,8 @@ const VehicleSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+VehicleSchema.index({ ecoSequence: 1 }, { unique: true });
 
 
 module.exports = mongoose.model('vehicles', VehicleSchema, 'vehicles');

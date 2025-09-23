@@ -15,15 +15,23 @@ exports.createVehicle = async (req, res) => {
             // Obtener el año actual
             const currentYear = new Date().getFullYear();
 
-            // Contar todos los vehículos registrados (sin importar el año)
-            const totalVehicles = await Vehicle.countDocuments();
+            // Buscar el último vehículo por ecoSequence
+            const lastVehicle = await Vehicle.findOne().sort({ ecoSequence: -1 });
 
-            // Generar número consecutivo con formato 3 dígitos
-            const ecoNumber = String(totalVehicles + 1).padStart(4, '0');
+            let nextEcoSequence = 1; // Valor inicial si no hay registros previos
+
+            if (lastVehicle && typeof lastVehicle.ecoSequence === 'number') {
+            nextEcoSequence = lastVehicle.ecoSequence + 1;
+            }
+
+            const paddedEco = String(nextEcoSequence).padStart(4, '0');
+            const shortYear = String(currentYear).slice(-2);
+            const numEco = `${paddedEco}/${shortYear}`;
+
 
             // Formato final: "001/2025"
-            const shortYear = String(currentYear).slice(-2); // "2025" → "25"
-            const numEco = `${ecoNumber}/${shortYear}`;
+            // const shortYear = String(currentYear).slice(-2); // "2025" → "25"
+            // const numEco = `${ecoNumber}/${shortYear}`;
 
             // Procesar rutas de imágenes
             const imagePaths = req.files?.map(file => file.path) || [];
@@ -31,6 +39,7 @@ exports.createVehicle = async (req, res) => {
             const newVehicle = new Vehicle({
             ...req.body,
             numEco,
+            ecoSequence: nextEcoSequence,
             images: imagePaths
             });
             await newVehicle.save();
