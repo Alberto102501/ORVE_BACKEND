@@ -21,12 +21,14 @@ const userRoutes = require('./src/routes/user.route');
 const vehicleRoutes = require('./src/routes/vehicle.route');
 const managersRoutes = require('./src/routes/managers/users.route')
 const receiptRoutes = require('./src/routes/receipt.route');
+const parkingRoutes = require('./src/routes/parking/parking.route.js');
 
 app.use('/api/managers', managersRoutes);
 
 app.use('/api/users', userRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/receipts', receiptRoutes);
+app.use('/api/parking', parkingRoutes);
 
 
 
