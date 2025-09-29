@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     },
     status:{
         type: Boolean
+    },
+    vehicle:{
+        type: Boolean,
+        default: false
     }
 }, {
   timestamps: true
