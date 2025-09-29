@@ -27,6 +27,9 @@ const particularVehicleSchema = new mongoose.Schema({
     },
     vehiclePlates: {
         type: String
+    },
+    type: {
+        type: String
     }
 });
 
