@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
 
 const particularVehicleSchema = new mongoose.Schema({
-    numEmployed: {
-        type: String
-    },
     completeName: {
         type: String
     },
@@ -30,6 +27,10 @@ const particularVehicleSchema = new mongoose.Schema({
     },
     type: {
         type: String
+    },
+    parking: {
+        type: Boolean,
+        default: false
     }
 });
 
