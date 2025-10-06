@@ -32,6 +32,8 @@ const particularVehicleSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('ParticularVehicle', particularVehicleSchema);
