@@ -28,6 +28,15 @@ const particularVehicleSchema = new mongoose.Schema({
     type: {
         type: String
     },
+    vehicleModel: {
+        type: String
+    },
+    vehicleSeries: {
+        type: String
+    },
+    numberCard: {
+        type: String
+    },
     parking: {
         type: Boolean,
         default: false
