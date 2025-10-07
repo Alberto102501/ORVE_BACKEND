@@ -24,6 +24,7 @@ const receiptRoutes = require('./src/routes/receipt.route');
 const parkingRoutes = require('./src/routes/parking/parking.route.js');
 const particularVehicleRoutes = require('./src/routes/parking/particularVehicle.route');
 const loadRoutes = require('./src/routes/fuel/load.route.js');
+const infoAdditionalRoutes = require('./src/routes/fuel/infoAdditional.route.js');
 
 
 
@@ -37,6 +38,7 @@ app.use('/api/parkingPlace', parkingRoutes);
 app.use('/api/parking/', particularVehicleRoutes);
 
 app.use('/api/fuel', loadRoutes);
+app.use('/api/fuel/info', infoAdditionalRoutes);
 
 
 
