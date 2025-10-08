@@ -24,13 +24,13 @@ exports.getInfoByCardNumber = async (req, res) => {
 
 exports.postInfo = async (req, res) => {
     try {
-        const { numberCard, amount, location, observations } = req.body;
+        const { numberCard, amount, location, observations, status } = req.body;
         const newInfo = new InfoAddFuel({
             numberCard,
             amount,
             location,
             observations,
-            status: true
+            status
         });
         await newInfo.save();
         res.status(201).json({ message: 'Información adicional de combustible creada exitosamente' });
@@ -42,7 +42,7 @@ exports.postInfo = async (req, res) => {
 exports.putInfoByCardNumber = async (req, res) => {
     try {
         const { numberCard } = req.params;
-        const { amount, location, observations} = req.body;
+        const { amount, location, observations, status} = req.body;
         
         const updatedInfo = await InfoAddFuel.findOneAndUpdate(
             { numberCard: numberCard }, 
@@ -50,7 +50,7 @@ exports.putInfoByCardNumber = async (req, res) => {
                 amount,
                 location,
                 observations,
-                //status
+                status
             }, 
             { new: true }
         );
