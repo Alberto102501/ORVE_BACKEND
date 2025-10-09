@@ -6,8 +6,8 @@ const loadSchema = new mongoose.Schema({
   account: { type: String },
   cardOrTag: { type: String },
   licensePlate: { type: String },
-  date: { type: Date },
-  transactionId: { type: String },
+  date: { type: String },//Se cambio de date a string
+  transactionId: { type: Number },//Se cambio de string a number
   debit: { type: Number },
   credit: { type: Number },
   balance: { type: Number },
@@ -21,7 +21,7 @@ const loadSchema = new mongoose.Schema({
   kmEnd: { type: Number },
   liters: { type: Number },
   efficiency: { type: Number },
-  iva: { type: Number },
+  iva: { type: String },// Se cambio de number a string
   station: { type: String },
   stationRFC: { type: String },
   state: { type: String },
