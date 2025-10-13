@@ -1,24 +1,41 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+// Esquema para el subdocumento de detalles de combustible
+const fuelDetailsSchema = new mongoose.Schema({
+    amount: {
+        type: Number,
+    },
+    location: {
+        type: String
+    },
+    observations: {
+        type: String
+    },
+    status: {
+        type: Boolean,
+        default: true
+    },
+    liters: {
+        type: Number
+    },
+    manager: {
+        type: String
+    },
+    month: {
+        type: Number
+    },
+    year: {
+        type: Number
+    }
+});
+
+// Esquema principal para InfoAddFuel
+const infoAddFuelSchema = new mongoose.Schema({
     numberCard: {
         type: String,
         required: true
     },
-    amount:{
-        type: Number,
-    },
-    location:{
-        type: String
-    },
-    observations:{
-        type: String
-    },
-    status:{
-        type: Boolean,
-        default: true
-    }
+    fuelDetails: [fuelDetailsSchema],
 });
 
-
-module.exports = mongoose.model('InfoAddFuel', userSchema,'InfoAddFuel');
+module.exports = mongoose.model('InfoAddFuel', infoAddFuelSchema, 'InfoAddFuel');
