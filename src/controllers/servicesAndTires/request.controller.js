@@ -11,10 +11,11 @@ exports.getRequests = async (req, res) => {
 
 exports.createRequest = async (req, res) => {
     try {
-        const { vehicle, serviceType, priority, time, date, description, mileage, items, user } = req.body;
+        const { vehicle, serviceType, priority, time, date, description, mileage, items, user, tire, assignment } = req.body;
         const newRequest = new Request({
             vehicle,
             user,
+            assignment,
             serviceType,
             priority,
             time,
@@ -22,6 +23,7 @@ exports.createRequest = async (req, res) => {
             description,
             mileage,
             status: "Pendiente",
+            tire,
             items,
         });
         const savedRequest = await newRequest.save();

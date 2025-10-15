@@ -8,6 +8,9 @@ const requestSchema = new mongoose.Schema({
     user: {
         type: String
     },
+    assignment: {
+        type: String
+    },
     serviceType: {
         type: String,
         required: true,
@@ -34,6 +37,9 @@ const requestSchema = new mongoose.Schema({
     },
     status: {
         type: String
+    },
+    tire :{
+        type: Object
     },
     items: [
         {
