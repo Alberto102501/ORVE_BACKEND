@@ -3,6 +3,7 @@ const requestController = require('../../controllers/servicesAndTires/request.co
 
 const Router = express.Router();
 
+Router.get("/accepted", requestController.getAcceptedRequests);
 Router.get("/", requestController.getRequests);
 Router.get("/:id", requestController.getRequest);
 Router.post("/", requestController.createRequest);

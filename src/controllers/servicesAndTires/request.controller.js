@@ -64,3 +64,13 @@ exports.updateRequest = async (req, res) => {
         return res.status(404).json({ message: "Request not found" });
     }
 };
+
+exports.getAcceptedRequests = async (req, res) => {
+    try {
+        const acceptedRequests = await Request.find({ status: 'Aceptada' }).sort({ updatedAt: 1 });
+        res.json(acceptedRequests);
+    } catch (err) {
+        console.error('Error al obtener solicitudes aceptadas:', err);
+        res.status(500).json({ error: 'Error al obtener solicitudes aceptadas.' });
+    }
+};
