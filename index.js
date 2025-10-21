@@ -26,6 +26,7 @@ const particularVehicleRoutes = require('./src/routes/parking/particularVehicle.
 const loadRoutes = require('./src/routes/fuel/load.route.js');
 const infoAdditionalRoutes = require('./src/routes/fuel/infoAdditional.route.js');
 const requestRoutes = require('./src/routes/servicesAndTires/request.route.js');
+const inventoryTiresRoutes = require('./src/routes/servicesAndTires/inventoryTires.route.js');
 
 
 
@@ -40,7 +41,9 @@ app.use('/api/parking/', particularVehicleRoutes);
 
 app.use('/api/fuel', loadRoutes);
 app.use('/api/fuel/info', infoAdditionalRoutes);
+
 app.use('/api/requests', requestRoutes);
+app.use('/api/inventoryTires', inventoryTiresRoutes);
 
 
 
