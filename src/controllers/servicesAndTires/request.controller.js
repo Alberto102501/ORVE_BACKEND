@@ -11,8 +11,9 @@ exports.getRequests = async (req, res) => {
 
 exports.createRequest = async (req, res) => {
     try {
-        const { vehicle, serviceType, priority, time, date, description, mileage, items, user, tire, assignment } = req.body;
+        const { folio, vehicle, serviceType, priority, time, date, description, mileage, items, user, tire, assignment } = req.body;
         const newRequest = new Request({
+            folio,
             vehicle,
             user,
             assignment,

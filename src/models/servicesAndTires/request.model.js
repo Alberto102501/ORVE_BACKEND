@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const requestSchema = new mongoose.Schema({
+    folio:{
+        type: String,
+        required: true,
+        unique: true
+    },
     vehicle: {
         type: Object,
         required: true,
