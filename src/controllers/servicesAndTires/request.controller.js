@@ -11,7 +11,7 @@ exports.getRequests = async (req, res) => {
 
 exports.createRequest = async (req, res) => {
     try {
-        const { folio, vehicle, serviceType, priority, time, date, description, mileage, items, user, tire, assignment } = req.body;
+        const { folio, vehicle, serviceType, priority, time, date, description, mileage, items, user, tire, assignment, type } = req.body;
         const newRequest = new Request({
             folio,
             vehicle,
@@ -26,11 +26,12 @@ exports.createRequest = async (req, res) => {
             status: "Pendiente",
             tire,
             items,
+            type
         });
         const savedRequest = await newRequest.save();
         res.json(savedRequest);
     } catch (error) {
-        return res.status(500).json({ message: "Something went wrong" });
+        return res.status(500).json({ message: "Something went wrong "+error });
     }
 };
 

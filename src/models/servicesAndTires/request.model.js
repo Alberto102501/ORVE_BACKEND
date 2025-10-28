@@ -18,11 +18,9 @@ const requestSchema = new mongoose.Schema({
     },
     serviceType: {
         type: String,
-        required: true,
     },
     priority: {
         type: String,
-        required: true,
     },
     time: {
         type: String,
@@ -34,17 +32,18 @@ const requestSchema = new mongoose.Schema({
     },
     description: {
         type: String,
-        required: true,
     },
     mileage: {
         type: Number,
-        required: true,
     },
     status: {
         type: String
     },
     tire :{
         type: Object
+    },
+    type: {
+        type: String
     },
     items: [
         {
