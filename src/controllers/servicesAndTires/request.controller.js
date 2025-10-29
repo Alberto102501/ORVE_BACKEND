@@ -28,6 +28,7 @@ exports.createRequest = async (req, res) => {
             items,
             type
         });
+        console.log(newRequest);
         const savedRequest = await newRequest.save();
         res.json(savedRequest);
     } catch (error) {

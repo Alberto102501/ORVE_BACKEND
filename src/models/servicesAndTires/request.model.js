@@ -48,12 +48,10 @@ const requestSchema = new mongoose.Schema({
     items: [
         {
             quantity: {
-                type: Number,
-                required: true,
+                type: Number
             },
             description: {
-                type: String,
-                required: true,
+                type: String
             },
         },
     ],
