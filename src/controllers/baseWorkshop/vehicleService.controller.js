@@ -33,3 +33,30 @@ exports.createRequestService = async (req, res) => {
         res.status(500).json({Error: error.message});
     }
 }
+
+exports.updateRequestService = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+
+    // Si el status cambia a Aceptado o Rechazado, registra la fecha
+    if (['Aceptado', 'Rechazado'].includes(req.body.status)) {
+      updateData.acceptanceDate = new Date();
+    }
+
+    // Si el status vuelve a Pendiente, borra la fecha
+    if (req.body.status === 'Pendiente') {
+      updateData.acceptanceDate = null;
+    }
+
+    const updatedService = await newService.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true
+    });
+
+    res.status(200).json({ message: 'Registro actualizado', data: updatedService });
+  } catch (error) {
+    console.error('Error al actualizar servicio:', error);
+    res.status(500).json({ error: error.message });
+  }
+};

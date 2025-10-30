@@ -75,7 +75,13 @@ const vehicleServiceSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    default: 'Pendiente',
+    enum: ['Pendiente', 'Aceptado', 'Rechazado']
+  },
+  acceptanceDate: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true 
