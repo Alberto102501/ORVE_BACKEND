@@ -5,11 +5,13 @@ const {
     getReceiptById,
     updateReceipt,
     patchReceipt,
-    deleteReceipt
+    deleteReceipt,
+    getReceiptByPlate
 } = require('../controllers/receipt.controller.js');
 
 const router = Router();
 
+router.get('/byPlate', getReceiptByPlate);
 router.post('/', createReceipt);
 router.get('/', getReceipts);
 router.get('/:id', getReceiptById);

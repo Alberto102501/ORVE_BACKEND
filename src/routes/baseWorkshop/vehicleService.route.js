@@ -4,6 +4,7 @@ const vehicleServiceController = require('../../controllers/baseWorkshop/vehicle
 const Router = express.Router();
 
 Router.get('/', vehicleServiceController.getRegistersService);
+Router.get('/:id', vehicleServiceController.getById);
 Router.post('/newService', vehicleServiceController.createRequestService);
 
 module.exports = Router;

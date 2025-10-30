@@ -55,6 +55,21 @@ exports.getReceiptById = async (req, res) => {
     }
 };
 
+exports.getReceiptByPlate = async (req, res) => {
+  const { plates } = req.query;
+
+  try {
+    const receipt = await Receipt.findOne({ 'vehicle.plates': plates });
+    if (!receipt) {
+      return res.status(404).json({ message: 'No se encontró ningún vehículo con esa placa.' });
+    }
+    res.json(receipt);
+  } catch (error) {
+    console.error('Error al buscar por placa:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+}
+
 exports.updateReceipt = async (req, res) => {
     try {
         const updatedReceipt = await Receipt.findByIdAndUpdate(req.params.id, req.body, { new: true });
