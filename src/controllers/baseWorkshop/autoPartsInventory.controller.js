@@ -13,6 +13,7 @@ const createInventoryItem = async (req, res) => {
     try {
         const {
             orderNumber,
+            process,
             plate,
             vehicleDetails,
             ur,
@@ -25,6 +26,7 @@ const createInventoryItem = async (req, res) => {
 
         const newInventoryItem = new AutoPartsInventory({
             orderNumber,
+            process,
             plate,
             vehicleDetails,
             ur,

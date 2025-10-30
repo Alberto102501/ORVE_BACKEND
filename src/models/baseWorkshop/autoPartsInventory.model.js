@@ -6,6 +6,10 @@ const autoPartsInventorySchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    process: {
+        type: String,
+        trim: true,
+    },
     plate: {
         type: String,
         trim: true,
