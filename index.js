@@ -27,6 +27,7 @@ const loadRoutes = require('./src/routes/fuel/load.route.js');
 const infoAdditionalRoutes = require('./src/routes/fuel/infoAdditional.route.js');
 const requestRoutes = require('./src/routes/servicesAndTires/request.route.js');
 const inventoryTiresRoutes = require('./src/routes/servicesAndTires/inventoryTires.route.js');
+const vehicleServiceRoutes = require('./src/routes/baseWorkshop/vehicleService.route.js')
 
 
 
@@ -44,6 +45,8 @@ app.use('/api/fuel/info', infoAdditionalRoutes);
 
 app.use('/api/requests', requestRoutes);
 app.use('/api/inventoryTires', inventoryTiresRoutes);
+
+app.use('/api/baseWorkshop', vehicleServiceRoutes);
 
 
 
