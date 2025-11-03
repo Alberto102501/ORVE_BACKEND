@@ -47,6 +47,12 @@ const workshopRequestSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
+    },
+    appointmentDate: {
+        type: Date,
+    },
+    appointmentTime: {
+        type: String,
     }
 }, {
     timestamps: true

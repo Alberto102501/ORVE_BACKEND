@@ -3,7 +3,7 @@ const WorkshopRequest = require('../../models/baseWorkshop/workshopRequest.model
 // Crear una nueva solicitud
 exports.createRequest = async (req, res) => {
     try {
-        const { folio, vehicle, user, assignment, phone, time, date, description } = req.body;
+        const { folio, vehicle, user, assignment, phone, time, date, description, appointmentDate, appointmentTime} = req.body;
 
         // Validar que el folio no exista
         const existingRequest = await WorkshopRequest.findOne({ folio });
@@ -19,7 +19,9 @@ exports.createRequest = async (req, res) => {
             phone,
             time,
             date,
-            description
+            description,
+            appointmentDate,
+            appointmentTime
         });
 
         const savedRequest = await newRequest.save();
