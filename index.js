@@ -29,6 +29,7 @@ const requestRoutes = require('./src/routes/servicesAndTires/request.route.js');
 const inventoryTiresRoutes = require('./src/routes/servicesAndTires/inventoryTires.route.js');
 const autoPartsInventoryRoutes = require('./src/routes/baseWorkshop/autoPartsInventory.route.js');
 const vehicleServiceRoutes = require('./src/routes/baseWorkshop/vehicleService.route.js')
+const workshopRequestRoutes = require('./src/routes/baseWorkshop/workshopRequest.routes.js');
 
 
 
@@ -49,7 +50,7 @@ app.use('/api/inventoryTires', inventoryTiresRoutes);
 
 app.use('/api/base-workshop', autoPartsInventoryRoutes);
 app.use('/api/baseWorkshop', vehicleServiceRoutes);
-
+app.use('/api/workshop-requests', workshopRequestRoutes);
 
 
 const PORT = process.env.PORT || 3001;
