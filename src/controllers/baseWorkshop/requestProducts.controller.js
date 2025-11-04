@@ -24,6 +24,7 @@ exports.getAllRequestProductsByFolio = async (req, res) => {
     }
 };
 
+// En requestProducts.controller.js
 exports.createRequestProducts = async (req, res) => {
     try {
         const { folio, plate, brand, subBrand, model, products } = req.body;
@@ -38,7 +39,20 @@ exports.createRequestProducts = async (req, res) => {
         await requestProducts.save();
         res.status(201).json(requestProducts);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating request products', error });
+        // ✨ AÑADIR LÓGICA DE VALIDACIÓN MÓVIL (Mongoose Validation Error) ✨
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            // Devolvemos un código 400 (Bad Request) con el detalle exacto de la falla
+            return res.status(400).json({ 
+                message: 'Error de validación de Mongoose. Campos requeridos faltantes o inválidos: ' + messages.join('; ') 
+            });
+        }
+        
+        // Error genérico del servidor (500)
+        res.status(500).json({ 
+            message: 'Error creating request products', 
+            error: error.message 
+        });
     }   
 };
 
