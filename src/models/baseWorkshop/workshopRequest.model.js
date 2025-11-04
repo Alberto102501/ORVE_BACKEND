@@ -8,7 +8,7 @@ const workshopRequestSchema = new mongoose.Schema({
         trim: true,
     },
     vehicle: {
-        id: { type: mongoose.Schema.Types.ObjectId, ref: 'vehicles', required: true },
+        //id: { type: mongoose.Schema.Types.ObjectId, ref: 'vehicles', required: true },
         numEco: { type: String },
         brand: { type: String },
         subBrand: { type: String },
