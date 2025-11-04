@@ -9,6 +9,21 @@ exports.getAllRequestProducts = async (req, res) => {
     }
 };
 
+exports.getAllRequestProductsByFolio = async (req, res) => {
+    try {
+        const { folio } = req.params;
+        const requestProducts = await newRequestProducts.find({ folio }).sort({ createdAt: -1 }); // Ordenar por fecha descendente
+
+        if (requestProducts.length === 0) {
+            return res.status(404).json({ message: 'No se encontraron solicitudes de productos para este folio' });
+        }
+        
+        res.status(200).json(requestProducts);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al buscar solicitudes por folio', error });
+    }
+};
+
 exports.createRequestProducts = async (req, res) => {
     try {
         const { folio, plate, brand, subBrand, model, products } = req.body;

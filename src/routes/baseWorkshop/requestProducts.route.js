@@ -4,6 +4,7 @@ const requestProductsController = require('../../controllers/baseWorkshop/reques
 const router = express.Router();
 
 router.get('/', requestProductsController.getAllRequestProducts);
+router.get('/getByFolio/:folio', requestProductsController.getAllRequestProductsByFolio);
 router.post('/createRequestProducts', requestProductsController.createRequestProducts);
 router.patch('/updateStatus/:id', requestProductsController.updateRequestProductsStatus);
 
