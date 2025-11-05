@@ -5,6 +5,25 @@ const orderProductsSchema = new mongoose.Schema({
         plates : {
             type: String,
             trim: true,
+            uppercase: true
+        },
+        brand: {
+            type: String,
+            trim: true,
+            uppercase: true
+        },
+        subBrand: {
+            type: String,
+            trim: true,
+            uppercase: true
+        },
+        model: {
+            type: String,
+            trim: true,
+        },
+        cylinders: {
+            type: String,
+            trim: true,
         },
         quantity: {
             type: Number,
@@ -14,11 +33,13 @@ const orderProductsSchema = new mongoose.Schema({
             type: String,
             required: true,
             trim: true,
+            uppercase: true
         },
         description: {
             type: String,
             required: true,
             trim: true,
+            uppercase: true
         },
     }],
     status : {
