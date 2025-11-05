@@ -24,7 +24,6 @@ exports.getAllRequestProductsByFolio = async (req, res) => {
     }
 };
 
-// En requestProducts.controller.js
 exports.createRequestProducts = async (req, res) => {
     try {
         const { folio, plate, brand, subBrand, model, products } = req.body;
@@ -39,7 +38,7 @@ exports.createRequestProducts = async (req, res) => {
         await requestProducts.save();
         res.status(201).json(requestProducts);
     } catch (error) {
-        // ✨ AÑADIR LÓGICA DE VALIDACIÓN MÓVIL (Mongoose Validation Error) ✨
+        // AÑADIR LÓGICA DE VALIDACIÓN MÓVIL (Mongoose Validation Error) 
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(val => val.message);
             // Devolvemos un código 400 (Bad Request) con el detalle exacto de la falla
