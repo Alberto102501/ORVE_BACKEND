@@ -4,7 +4,6 @@ const requestProductsSchema = new mongoose.Schema({
     folio: {
         type: String,
         required: true,
-        unique: true,
         trim: true,
     },
     plate: {
