@@ -4,7 +4,8 @@ const {
     createInventoryItem,
     getInventoryItem,
     updateInventoryItem,
-    deleteInventoryItem
+    deleteInventoryItem,
+    updateInventoryQuantity
 } = require('../../controllers/baseWorkshop/autoPartsInventory.controller.js');
 const { authRequired } = require('../../middleware/validateToken.js');
 
@@ -14,6 +15,7 @@ router.get('/', getInventory);
 router.post('/', createInventoryItem);
 router.get('/:id', getInventoryItem);
 router.put('/:id', updateInventoryItem);
+router.patch('/deduct-stock', updateInventoryQuantity);
 router.delete('/:id', deleteInventoryItem);
 
 module.exports = router;

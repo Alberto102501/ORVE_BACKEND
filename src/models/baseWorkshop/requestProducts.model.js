@@ -50,9 +50,56 @@ const requestProductsSchema = new mongoose.Schema({
             }
         }
     ],
+    approvedProducts: [ 
+    {
+        // Campos de control interno
+        inventoryId: { 
+            type: mongoose.Schema.Types.ObjectId,
+            required: true
+        },
+        assignedQuantity: { 
+            type: Number,
+            required: true
+        },
+        
+        // **********************************
+        // ** CAMPOS DEL PRODUCTO DE INVENTARIO **
+        // **********************************
+        orderNumber: {
+            type: String,
+            trim: true,
+        },
+        process: {
+            type: String,
+            trim: true,
+        },
+        plate: {
+            type: String,
+            trim: true,
+        },
+        category: {
+            type: String,
+            trim: true,
+        },
+        description: { 
+            type: String,
+            required: true,
+            trim: true
+        },
+        um: { 
+            type: String,
+            required: true,
+            trim: true
+        },
+        partBrand: {
+            type: String,
+            trim: true,
+        },
+    }
+],
     status: {
         type: String,
-        enum: ['Pendiente', 'Aceptado', 'Rechazado'],
+        enum: ['Pendiente', 'Asignado', 'Rechazado'],
         default: 'Pendiente',
     },
     reasonRejection: {

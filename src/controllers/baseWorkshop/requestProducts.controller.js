@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const newRequestProducts = require('../../models/baseWorkshop/requestProducts.model.js');
 
 exports.getAllRequestProducts = async (req, res) => {
@@ -55,29 +56,60 @@ exports.createRequestProducts = async (req, res) => {
     }   
 };
 
+
 exports.updateRequestProductsStatus = async (req, res) => {
+    const { id } = req.params;
+    const updateData = req.body; 
+
     try {
-        const { id } = req.params;
-
-        const updateData = req.body;
-
+        // 1. CONVERSIÓN DE IDs (si approvedProducts existe)
+        if (updateData.approvedProducts && updateData.approvedProducts.length > 0) {
+            updateData.approvedProducts.forEach(product => {
+                // Validación estricta del formato de ObjectId antes de la conversión
+                if (typeof product.inventoryId === 'string' && !mongoose.Types.ObjectId.isValid(product.inventoryId)) {
+                     // Si el formato es INCORRECTO, lanzamos un error de validación (CastError)
+                     throw new Error(`El ID de inventario '${product.inventoryId}' tiene un formato inválido.`);
+                }
+                
+                // Conversión segura (si es una cadena válida)
+                if (typeof product.inventoryId === 'string') {
+                    product.inventoryId = new mongoose.Types.ObjectId(product.inventoryId);
+                }
+            });
+        }
+        
+        // 2. OPERACIÓN DE ACTUALIZACIÓN SEGURA con $set
         const requestProducts = await newRequestProducts.findByIdAndUpdate(
             id,
-            updateData, 
+            { $set: updateData }, // Usa $set explícitamente
             { 
                 new: true, 
-                runValidators: true 
+                runValidators: true // Esto dispara la validación del esquema (la causa del 400)
             }
         );
 
         if (!requestProducts) {
-            return res.status(404).json({ message: 'El producto al que se quiere hacer el patch no fue encontrado' });
+            return res.status(404).json({ message: 'La solicitud de producto no fue encontrada' });
         }
-
         
         res.status(200).json(requestProducts);
 
     } catch (error) {
-        res.status(500).json({ message: 'Error updating request products status', error });
+        // 3. CAPTURA Y REPORTE DE ERRORES DE VALIDACIÓN (400)
+        
+        // Error de validación de Mongoose o CastError (incluye el error de formato que lanzamos arriba)
+        if (error.name === 'ValidationError' || error.name === 'CastError' || error.message.includes('formato inválido')) {
+             return res.status(400).json({ 
+                message: 'Fallo de validación de datos. Revise los campos: ' + error.message, 
+                errorDetail: error 
+            });
+        }
+        
+        // Error interno genérico (500)
+        console.error('Error interno del servidor:', error);
+        res.status(500).json({ 
+            message: 'Error interno del servidor al actualizar la solicitud', 
+            error: error.message 
+        });
     }
 };
