@@ -7,5 +7,6 @@ Router.get('/', vehicleServiceController.getRegistersService);
 Router.get('/:id', vehicleServiceController.getById);
 Router.post('/newService', vehicleServiceController.createRequestService);
 Router.put('/update/:id', vehicleServiceController.updateRequestService);
+Router.patch('/updateStatusByFolio/:folio', vehicleServiceController.updateVehicleStatusByFolio);
 
 module.exports = Router;

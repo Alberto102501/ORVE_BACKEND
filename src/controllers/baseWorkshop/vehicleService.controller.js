@@ -60,3 +60,27 @@ exports.updateRequestService = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.updateVehicleStatusByFolio = async (req, res) => {
+    // 1. Obtener el folio de la URL
+    const { folio } = req.params; 
+    // 2. Obtener el nuevo estado del cuerpo (body)
+    const { status } = req.body; 
+
+    try {
+        // Buscar el vehículo por el folio de la solicitud y actualizar su estado
+        const vehicle = await newService.findOneAndUpdate(
+            { folio: folio }, // Condición: folio debe coincidir
+            { status: status }, 
+            { new: true }
+        );
+
+        if (!vehicle) {
+            return res.status(404).json({ message: "Registro de vehículo no encontrado para el folio proporcionado." });
+        }
+
+        res.json({ message: "Estado del vehículo actualizado correctamente.", vehicle });
+    } catch (error) {
+        res.status(500).json({ message: "Error interno del servidor al actualizar el estado." });
+    }
+};
