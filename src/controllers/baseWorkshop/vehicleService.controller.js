@@ -84,3 +84,61 @@ exports.updateVehicleStatusByFolio = async (req, res) => {
         res.status(500).json({ message: "Error interno del servidor al actualizar el estado." });
     }
 };
+
+exports.finalizeVehicleService = async (req, res) => {
+    try {
+        const { id } = req.params; // ID del registro de servicio (no el folio)
+        const { status, exit } = req.body; // Esperamos { status: 'Aceptado' o 'Finalizado', exit: { ... } }
+
+        // 1. Validaciones básicas
+        if (!status || !exit) {
+            return res.status(400).json({ message: 'Faltan campos requeridos (status y datos de egreso).' });
+        }
+
+        // 2. Construcción del objeto de actualización
+        const updateData = {
+            status: status, // Actualiza el status principal a 'Aceptado' o 'Finalizado'
+        };
+
+        // Si el estado es aceptado, registra la fecha de aceptación (basado en tu lógica existente)
+        if (status === 'Aceptado') {
+            updateData.acceptanceDate = new Date();
+        }
+
+        // 3. Añadir el subdocumento 'exit'. Usamos $push si 'exit' es un array en el modelo 
+        // (tu modelo lo define como un array: exit: [...])
+        if (exit) {
+            // $push añade un nuevo elemento al array 'exit'
+            const updatedService = await newService.findByIdAndUpdate(
+                id,
+                { 
+                    $set: updateData, // Actualiza status y acceptanceDate
+                    $push: { exit: exit } // Añade el subdocumento de egreso completo
+                },
+                { 
+                    new: true, 
+                    runValidators: true 
+                }
+            );
+
+            if (!updatedService) {
+                return res.status(404).json({ message: 'Registro de servicio no encontrado.' });
+            }
+
+            return res.status(200).json({ message: 'Servicio finalizado y egreso registrado', data: updatedService });
+        }
+        
+        return res.status(400).json({ message: 'Datos de egreso incompletos.' });
+
+    } catch (error) {
+        // Manejo detallado de errores de Mongoose (validación)
+        if (error.name === 'ValidationError') {
+             return res.status(400).json({ 
+                message: 'Error de validación al finalizar el servicio.', 
+                errorDetail: error.message 
+            });
+        }
+        console.error('Error al finalizar servicio:', error);
+        res.status(500).json({ error: error.message });
+    }
+};

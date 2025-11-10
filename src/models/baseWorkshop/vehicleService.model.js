@@ -82,9 +82,84 @@ const vehicleServiceSchema = new mongoose.Schema({
   acceptanceDate: {
     type: Date,
     default: null
-  }
+  },
+  exit: [
+    {
+      stations: [
+        {
+          tuningStation: {
+            type: Boolean
+          },
+          suspensionStation: {
+            type: Boolean
+          },
+          sheetMetalStation: {
+            type: Boolean
+          },
+          enginesStation: {
+            type: Boolean
+          },
+          electricalStation: {
+            type: Boolean
+          }
+        }
+      ],
+      servicesPerformed: [
+        {
+          registeredByUser: {
+            type: String
+          }
+        }
+      ],
+      installedProducts: [
+        {
+          assignedQuantity: {
+            type: Number,
+            required: true
+          },
+          orderNumber: {
+            type: String,
+            trim: true,
+          },
+          process: {
+            type: String,
+            trim: true,
+          },
+          plate: {
+            type: String,
+            trim: true,
+          },
+          category: {
+            type: String,
+            trim: true,
+          },
+          description: {
+            type: String,
+            required: true,
+            trim: true
+          },
+          um: {
+            type: String,
+            required: true,
+            trim: true
+          },
+          partBrand: {
+            type: String,
+            trim: true,
+          },
+        }
+      ],
+      registeredExitBy: {
+        type: String,
+      },
+      annotations: {
+        type: String
+      }
+
+    }
+  ]
 }, {
-  timestamps: true 
+  timestamps: true
 });
 
 module.exports = mongoose.model('VehicleService', vehicleServiceSchema);
