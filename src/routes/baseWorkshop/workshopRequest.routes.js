@@ -14,6 +14,10 @@ router.get('/', workshopRequestController.getRequests);
 // GET /api/workshop-requests/:id
 router.get('/:id', workshopRequestController.getRequestById);
 
+// Ruta para obtener una solicitud por su folio
+// GET /api/workshop-requests/folio/:folio
+router.get('/folio/:folio', workshopRequestController.getRequestByFolio);
+
 // Ruta para actualizar una solicitud por su ID
 // PUT /api/workshop-requests/:id
 router.put('/:id', workshopRequestController.updateRequest);

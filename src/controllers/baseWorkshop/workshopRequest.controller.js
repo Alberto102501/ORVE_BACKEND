@@ -54,6 +54,19 @@ exports.getRequestById = async (req, res) => {
     }
 };
 
+// Obtener una solicitud por folio
+exports.getRequestByFolio = async (req, res) => {
+    try {
+        const request = await WorkshopRequest.findOne({ folio: req.params.folio });
+        if (!request) {
+            return res.status(404).json({ message: 'Solicitud no encontrada.' });
+        }
+        res.status(200).json(request);
+    } catch (error) { 
+        res.status(500).json({ message: 'Error al obtener la solicitud: ' + error.message });
+    }
+}
+
 // Actualizar una solicitud por ID
 exports.updateRequest = async (req, res) => {
     try {
