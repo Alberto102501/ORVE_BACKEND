@@ -11,6 +11,7 @@ const vehicleServiceSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+    index: true, // <-- ¡NUEVO! Índice añadido para optimizar búsquedas por placa
   },
   user: {
     type: String,
@@ -77,7 +78,8 @@ const vehicleServiceSchema = new mongoose.Schema({
     required: true,
     trim: true,
     default: 'Pendiente',
-    enum: ['Pendiente', 'En reparación', 'Aceptado', 'Rechazado']
+    enum: ['Pendiente', 'En reparación', 'Aceptado', 'Rechazado'],
+    index: true, // <-- ¡NUEVO! Índice añadido para optimizar búsquedas por estado
   },
   acceptanceDate: {
     type: Date,
@@ -159,7 +161,7 @@ const vehicleServiceSchema = new mongoose.Schema({
     }
   ]
 }, {
-  timestamps: true
+  timestamps: true // Esto indexa automáticamente 'createdAt' y 'updatedAt'
 });
 
 module.exports = mongoose.model('VehicleService', vehicleServiceSchema);

@@ -1,77 +1,113 @@
 const newService = require('../../models/baseWorkshop/vehicleService.model');
 
 exports.getRegistersService = async (req, res) => {
-    try{
-        const services = await newService.find();
-        res.status(200).json({message: 'Success', data: services});
-    }catch (error){
-        res.status(500).json({Error: error.message});
+    try {
+        // 1. Definir la fecha de hace 30 días para la consulta
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        // 2. Obtener todos los registros de servicios (usando .lean() para optimización)
+        let services = await newService.find().sort({ createdAt: -1 }).lean();
+
+        // 3. Procesar cada servicio para determinar si es un visitante frecuente
+        const processedServices = await Promise.all(
+            services.map(async (service) => {
+
+                const vehiclePlate = service.plate;
+
+                // Sub-consulta: Contar cuántas veces se registró este vehículo 
+                // con estado 'Aceptado' o 'En reparación' en los últimos 30 días
+                const visitCount = await newService.countDocuments({
+                    plate: vehiclePlate,
+                    // Consideramos visitas los servicios aceptados o en reparación
+                    status: { $in: ['Aceptado', 'En reparación'] },
+                    createdAt: { $gte: thirtyDaysAgo } // Desde hace 30 días hasta ahora
+                });
+
+                // Condición: 3 o más visitas
+                const isFrequentVisitor = visitCount >= 3;
+
+                // Devolver el servicio con la nueva propiedad para el frontend
+                return {
+                    ...service,
+                    visitCount: visitCount,
+                    isFrequentVisitor: isFrequentVisitor // <-- ¡Esta es la propiedad clave!
+                };
+            })
+        );
+
+        // 4. Devolver la respuesta al frontend
+        res.status(200).json({ message: 'Success', data: processedServices });
+
+    } catch (error) {
+        console.error('Error en getRegistersService:', error);
+        res.status(500).json({ Error: error.message });
     }
 }
 
 exports.getById = async (req, res) => {
-    try{
+    try {
         const register = await newService.findById(req.params.id);
 
-        if(!register) {
-            res.status(404).json({message: 'Registro no encontrado'});
+        if (!register) {
+            res.status(404).json({ message: 'Registro no encontrado' });
         }
 
-        res.status(200).json({message: 'Success', data: register});
-    }catch(error){
-        res.status(500).json({error: error.message});
+        res.status(200).json({ message: 'Success', data: register });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 }
 
 exports.createRequestService = async (req, res) => {
-    try{
+    try {
         const newRequestService = new newService(req.body);
         const savedRequestServices = await newRequestService.save();
-        res.status(200).json({message: 'Success', data: savedRequestServices}) ;
-    }catch (error){
+        res.status(200).json({ message: 'Success', data: savedRequestServices });
+    } catch (error) {
         console.error('Error al guardar servicio: ', error);
-        res.status(500).json({Error: error.message});
+        res.status(500).json({ Error: error.message });
     }
 }
 
 exports.updateRequestService = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = { ...req.body };
+    try {
+        const { id } = req.params;
+        const updateData = { ...req.body };
 
-    // Si el status cambia a Aceptado o Rechazado, registra la fecha
-    if (['Aceptado', 'Rechazado'].includes(req.body.status)) {
-      updateData.acceptanceDate = new Date();
+        // Si el status cambia a Aceptado o Rechazado, registra la fecha
+        if (['Aceptado', 'Rechazado'].includes(req.body.status)) {
+            updateData.acceptanceDate = new Date();
+        }
+
+        // Si el status vuelve a Pendiente, borra la fecha
+        if (req.body.status === 'Pendiente') {
+            updateData.acceptanceDate = null;
+        }
+
+        const updatedService = await newService.findByIdAndUpdate(id, updateData, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({ message: 'Registro actualizado', data: updatedService });
+    } catch (error) {
+        console.error('Error al actualizar servicio:', error);
+        res.status(500).json({ error: error.message });
     }
-
-    // Si el status vuelve a Pendiente, borra la fecha
-    if (req.body.status === 'Pendiente') {
-      updateData.acceptanceDate = null;
-    }
-
-    const updatedService = await newService.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true
-    });
-
-    res.status(200).json({ message: 'Registro actualizado', data: updatedService });
-  } catch (error) {
-    console.error('Error al actualizar servicio:', error);
-    res.status(500).json({ error: error.message });
-  }
 };
 
 exports.updateVehicleStatusByFolio = async (req, res) => {
     // 1. Obtener el folio de la URL
-    const { folio } = req.params; 
+    const { folio } = req.params;
     // 2. Obtener el nuevo estado del cuerpo (body)
-    const { status } = req.body; 
+    const { status } = req.body;
 
     try {
         // Buscar el vehículo por el folio de la solicitud y actualizar su estado
         const vehicle = await newService.findOneAndUpdate(
             { folio: folio }, // Condición: folio debe coincidir
-            { status: status }, 
+            { status: status },
             { new: true }
         );
 
@@ -111,13 +147,13 @@ exports.finalizeVehicleService = async (req, res) => {
             // $push añade un nuevo elemento al array 'exit'
             const updatedService = await newService.findByIdAndUpdate(
                 id,
-                { 
+                {
                     $set: updateData, // Actualiza status y acceptanceDate
                     $push: { exit: exit } // Añade el subdocumento de egreso completo
                 },
-                { 
-                    new: true, 
-                    runValidators: true 
+                {
+                    new: true,
+                    runValidators: true
                 }
             );
 
@@ -127,15 +163,15 @@ exports.finalizeVehicleService = async (req, res) => {
 
             return res.status(200).json({ message: 'Servicio finalizado y egreso registrado', data: updatedService });
         }
-        
+
         return res.status(400).json({ message: 'Datos de egreso incompletos.' });
 
     } catch (error) {
         // Manejo detallado de errores de Mongoose (validación)
         if (error.name === 'ValidationError') {
-             return res.status(400).json({ 
-                message: 'Error de validación al finalizar el servicio.', 
-                errorDetail: error.message 
+            return res.status(400).json({
+                message: 'Error de validación al finalizar el servicio.',
+                errorDetail: error.message
             });
         }
         console.error('Error al finalizar servicio:', error);
