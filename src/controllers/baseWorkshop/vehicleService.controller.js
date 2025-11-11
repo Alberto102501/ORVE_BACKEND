@@ -1,47 +1,74 @@
 const newService = require('../../models/baseWorkshop/vehicleService.model');
 
+const mongoose = require('mongoose'); // NECESARIO para usar la función $match
+
 exports.getRegistersService = async (req, res) => {
     try {
-        // 1. Definir la fecha de hace 30 días para la consulta
+        // 1. Definir la fecha de hace 30 días
         const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30); 
+        
+        // 2. Pipeline de Agregación
+        const services = await newService.aggregate([
+            // Primera Etapa: Realizar el conteo de visitas recientes (por placa)
+            {
+                $lookup: {
+                    from: 'vehicleservices', // Nombre de la colección en MongoDB (Mongoose le añade 's')
+                    let: { current_plate: "$plate" }, // Variable para la placa del servicio actual
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$plate", "$$current_plate"] }, // Que coincida la placa
+                                        { $in: ["$status", ["Aceptado", "En reparación"]] }, // Que el estado sea de visita
+                                        { $gte: ["$createdAt", thirtyDaysAgo] } // Que esté en los últimos 30 días
+                                    ]
+                                }
+                            }
+                        },
+                        { $count: "visitCount" } // Contar los documentos que cumplen el match
+                    ],
+                    as: "frequentVisitorInfo" // El resultado del pipeline se guarda aquí
+                }
+            },
+            
+            // Segunda Etapa: Añadir las nuevas propiedades al objeto principal
+            {
+                $addFields: {
+                    // visitCount: Extraer el valor del conteo (si está vacío es 0)
+                    visitCount: { 
+                        $ifNull: [{ $arrayElemAt: ["$frequentVisitorInfo.visitCount", 0] }, 0] 
+                    },
+                }
+            },
 
-        // 2. Obtener todos los registros de servicios (usando .lean() para optimización)
-        let services = await newService.find().sort({ createdAt: -1 }).lean();
+            // Tercera Etapa: Calcular la propiedad booleana
+            {
+                $addFields: {
+                    // isFrequentVisitor: True si el conteo es 3 o más
+                    isFrequentVisitor: { $gte: ["$visitCount", 3] }
+                }
+            },
 
-        // 3. Procesar cada servicio para determinar si es un visitante frecuente
-        const processedServices = await Promise.all(
-            services.map(async (service) => {
+            // Cuarta Etapa: Ordenar (igual que antes)
+            { $sort: { createdAt: -1 } },
 
-                const vehiclePlate = service.plate;
-
-                // Sub-consulta: Contar cuántas veces se registró este vehículo 
-                // con estado 'Aceptado' o 'En reparación' en los últimos 30 días
-                const visitCount = await newService.countDocuments({
-                    plate: vehiclePlate,
-                    // Consideramos visitas los servicios aceptados o en reparación
-                    status: { $in: ['Aceptado', 'En reparación'] },
-                    createdAt: { $gte: thirtyDaysAgo } // Desde hace 30 días hasta ahora
-                });
-
-                // Condición: 3 o más visitas
-                const isFrequentVisitor = visitCount >= 3;
-
-                // Devolver el servicio con la nueva propiedad para el frontend
-                return {
-                    ...service,
-                    visitCount: visitCount,
-                    isFrequentVisitor: isFrequentVisitor // <-- ¡Esta es la propiedad clave!
-                };
-            })
-        );
-
-        // 4. Devolver la respuesta al frontend
-        res.status(200).json({ message: 'Success', data: processedServices });
+            // Quinta Etapa (Opcional): Limpiar el campo temporal y reformatear el objeto
+            {
+                $project: {
+                    frequentVisitorInfo: 0, // Eliminar el campo temporal
+                }
+            }
+        ]);
+        
+        // 3. Devolver la respuesta (la respuesta de aggregate ya es un array)
+        res.status(200).json({message: 'Success', data: services});
 
     } catch (error) {
-        console.error('Error en getRegistersService:', error);
-        res.status(500).json({ Error: error.message });
+        // Asegúrate de que Mongoose esté importado si tienes errores con $match
+        console.error('Error en getRegistersService (Aggregation):', error);
+        res.status(500).json({Error: error.message});
     }
 }
 
