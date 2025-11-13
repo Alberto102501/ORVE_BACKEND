@@ -1,5 +1,7 @@
 const WorkshopRequest = require('../../models/baseWorkshop/workshopRequest.model');
 
+const VehicleService = require('../../models/baseWorkshop/vehicleService.model');
+
 // Crear una nueva solicitud
 exports.createRequest = async (req, res) => {
     try {
@@ -117,5 +119,64 @@ exports.getRequestProductByPlate = async (req, res) => {
         res.status(200).json({ message: 'success', data: response });
     } catch (error) {
         res.status(500).json({ message: 'Error al realizar la consulta', error: error.message });
+    }
+};
+
+exports.getAvailableAppointmentsForToday = async (req, res) => {
+    try {
+        // Obtiene los componentes de la fecha actual
+        const now = new Date(); 
+        const year = now.getFullYear();
+        const month = now.getMonth(); // 0-11 (Ene=0, Nov=10)
+        const day = now.getDate();
+
+        // Construye "hoy" como medianoche UTC
+        const today = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+
+        // Construye "mañana" como medianoche UTC del día siguiente
+        const tomorrow = new Date(Date.UTC(year, month, day + 1, 0, 0, 0, 0));
+
+        // --- 2. Pipeline de Agregación ---
+        const availableAppointments = await WorkshopRequest.aggregate([
+            {
+                // Paso 1: Encuentra solo las citas de hoy
+                $match: {
+                    appointmentDate: {
+                        $gte: today,
+                        $lt: tomorrow
+                    }
+                }
+            },
+            {
+                // Paso 2: Busca una coincidencia en la colección 'vehicleservices'
+                $lookup: {
+                    from: 'vehicleservices', // El nombre de la colección de registros
+                    localField: 'folio',     // Campo de 'WorkshopRequest' (citas)
+                    foreignField: 'folio',   // Campo de 'VehicleService' (registros)
+                    as: 'registration'       // Guarda los resultados aquí (será un array)
+                }
+            },
+            {
+                // Paso 3: Filtra. Quédate SOLO con las citas
+                // donde el array 'registration' esté VACÍO (tamaño 0).
+                $match: {
+                    registration: { $size:  0}
+                }
+            },
+            {
+                // (Opcional) Limpia el campo 'registration' para no enviarlo
+                $project: {
+                    registration: 0
+                }
+            }
+        ]);
+
+        //console.log('Citas disponibles:', availableAppointments);
+
+        // 3. Devuelve la lista ya filtrada
+        res.status(200).json(availableAppointments);
+
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener citas disponibles: ' + error.message });
     }
 };

@@ -6,6 +6,9 @@ const workshopRequestController = require('../../controllers/baseWorkshop/worksh
 // POST /api/workshop-requests
 router.post('/', workshopRequestController.createRequest);
 
+// GET citas de hoy
+router.get('/available-today', workshopRequestController.getAvailableAppointmentsForToday);
+
 // Ruta para obtener todas las solicitudes
 // GET /api/workshop-requests
 router.get('/', workshopRequestController.getRequests);
