@@ -18,6 +18,8 @@ router.get('/:id', workshopRequestController.getRequestById);
 // GET /api/workshop-requests/folio/:folio
 router.get('/folio/:folio', workshopRequestController.getRequestByFolio);
 
+router.get('/getByPlate/:plate', workshopRequestController.getRequestProductByPlate);
+
 // Ruta para actualizar una solicitud por su ID
 // PUT /api/workshop-requests/:id
 router.put('/:id', workshopRequestController.updateRequest);

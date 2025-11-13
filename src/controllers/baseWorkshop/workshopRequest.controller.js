@@ -92,3 +92,34 @@ exports.deleteRequest = async (req, res) => {
         res.status(500).json({ message: 'Error al eliminar la solicitud: ' + error.message });
     }
 };
+
+exports.getRequestProductByPlate = async (req, res) => {
+    try {
+        const plate = req.params.plate;
+        if (!plate) {
+            return res.status(404).json({ message: 'Error al encontrar placa.' });
+        }
+
+        const now = new Date();
+
+        // Fecha en formato 'YYYY-MM-DD'
+        const today = now.toISOString().split('T')[0];
+
+        // Hora actual en formato 'HH:mm' (24 horas)
+        const currentTime = now.toLocaleTimeString('es-MX', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        const response = await WorkshopRequest.find({
+            'vehicle.plates': plate,
+            appointmentDate: new Date(today),
+            appointmentTime: { $gte: currentTime }
+        });
+
+        res.status(200).json({ message: 'success', data: response });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al realizar la consulta', error: error.message });
+    }
+};
