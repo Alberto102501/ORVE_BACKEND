@@ -96,28 +96,24 @@ exports.deleteRequest = async (req, res) => {
 exports.getRequestProductByPlate = async (req, res) => {
     try {
         const plate = req.params.plate;
-        if (!plate) {
-            return res.status(404).json({ message: 'Error al encontrar placa.' });
+        const selectedDate = req.query.date; // Recibido como YYYY-MM-DD
+
+        if (!plate || !selectedDate) {
+            return res.status(400).json({ message: 'Faltan datos: placa o fecha.' });
         }
 
-        const now = new Date();
+        // Convertir la fecha YYYY-MM-DD a un rango de día completo en UTC
+        const startOfDay = new Date(`${selectedDate}T00:00:00.000Z`);
+        const endOfDay = new Date(`${selectedDate}T23:59:59.999Z`);
 
-        // Fecha en formato 'YYYY-MM-DD'
-        const today = now.toISOString().split('T')[0];
-
-        // Hora actual en formato 'HH:mm' (24 horas)
-        const currentTime = now.toLocaleTimeString('es-MX', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        });
 
         const response = await WorkshopRequest.find({
             'vehicle.plates': plate,
-            appointmentDate: new Date(today),
-            appointmentTime: { $gte: currentTime }
+            // Filtro estricto: la cita debe estar dentro de las 24 horas del día seleccionado
+            appointmentDate: { $gte: startOfDay, $lte: endOfDay },
         });
 
+        // Si response.length > 0, significa que YA HAY una cita para esa placa ese día, y se debe bloquear.
         res.status(200).json({ message: 'success', data: response });
     } catch (error) {
         res.status(500).json({ message: 'Error al realizar la consulta', error: error.message });
