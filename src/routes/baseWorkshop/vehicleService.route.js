@@ -3,6 +3,7 @@ const vehicleServiceController = require('../../controllers/baseWorkshop/vehicle
 
 const Router = express.Router();
 
+Router.get('/getByFolio/:folio', vehicleServiceController.getRequestByFolio);
 Router.get('/', vehicleServiceController.getRegistersService);
 Router.get('/:id', vehicleServiceController.getById);
 Router.post('/newService', vehicleServiceController.createRequestService);

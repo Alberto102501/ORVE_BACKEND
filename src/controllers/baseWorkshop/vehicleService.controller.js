@@ -239,3 +239,22 @@ exports.finalizeVehicleService = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.getRequestByFolio = async (req, res) => {
+  try {
+    const folio = req.params.folio?.trim();
+    if (!folio) {
+      return res.status(400).json({ message: "Folio inválido o faltante" });
+    }
+
+    const request = await newService.findOne({ folio });
+
+    if (!request) {
+      return res.status(404).json({ message: "Solicitud no encontrada" });
+    }
+
+    res.status(200).json({ message: 'success', data: request });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
