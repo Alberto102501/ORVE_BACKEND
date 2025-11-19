@@ -34,6 +34,7 @@ const requestProductsRoutes = require('./src/routes/baseWorkshop/requestProducts
 const orderProductRoutes = require('./src/routes/baseWorkshop/orderProduct.route.js');
 const notificationRoutes = require('./src/routes/baseWorkshop/notification.route.js');
 const localVehicleServiceRoutes = require('./src/routes/localWorkshop/localVehicleService.route.js');
+const authorizedVehiclesRoutes = require('./src/routes/localWorkshop/authorizedVehicles.route.js');
 
 
 app.use('/api/managers', managersRoutes);
@@ -59,6 +60,7 @@ app.use('/api/orderProducts', orderProductRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 app.use('/api/localWorkshop/', localVehicleServiceRoutes);
+app.use('/api/authorizedVehicles', authorizedVehiclesRoutes);
 
 
 const PORT = process.env.PORT || 3001;
