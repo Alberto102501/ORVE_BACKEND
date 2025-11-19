@@ -1,4 +1,4 @@
-const newService = require('../../models/baseWorkshop/vehicleService.model');
+const newService = require('../../models/localWorkshop/localVehicleService.model');
 const Notification = require('../../models/baseWorkshop/notification.model');
 const mongoose = require('mongoose'); // NECESARIO para usar la función $match en aggregation
 
