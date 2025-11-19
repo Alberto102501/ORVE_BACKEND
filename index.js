@@ -33,6 +33,7 @@ const workshopRequestRoutes = require('./src/routes/baseWorkshop/workshopRequest
 const requestProductsRoutes = require('./src/routes/baseWorkshop/requestProducts.route.js');
 const orderProductRoutes = require('./src/routes/baseWorkshop/orderProduct.route.js');
 const notificationRoutes = require('./src/routes/baseWorkshop/notification.route.js');
+const localVehicleServiceRoutes = require('./src/routes/localWorkshop/localVehicleService.route.js');
 
 
 app.use('/api/managers', managersRoutes);
@@ -56,6 +57,8 @@ app.use('/api/workshop-requests', workshopRequestRoutes);
 app.use('/api/requestProducts', requestProductsRoutes);
 app.use('/api/orderProducts', orderProductRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+app.use('/api/localWorkshop/', localVehicleServiceRoutes);
 
 
 const PORT = process.env.PORT || 3001;
