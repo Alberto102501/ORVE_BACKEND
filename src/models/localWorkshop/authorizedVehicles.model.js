@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 
 const authorizedVehiclesShema = new mongoose.Schema({
+    idVehicle: {
+        type: String,
+        required: true,
+        unique: true
+    },
     numEco: {
         type: String,
-        unique: true
+        required: true
     },
     brand: {
         type: String,
