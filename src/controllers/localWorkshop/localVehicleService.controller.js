@@ -120,14 +120,90 @@ exports.getById = async (req, res) => {
     }
 }
 
+const getNextFolio = async (session) => {
+    // 1. Obtener la fecha actual y el identificador MMYY
+    const today = new Date();
+    // MM (ej: 01, 11, 12)
+    const currentMonth = String(today.getMonth() + 1).padStart(2, '0');
+    // YY (ej: 25)
+    const currentYear = String(today.getFullYear()).slice(-2);
+    const currentMonthYear = currentMonth + currentYear; // ej: '1125'
+
+    let nextSeq = 1; // Por defecto, el contador inicia en 1
+
+    // 2. Encontrar el ÚLTIMO registro con el folio más alto.
+    // Usamos $sort: { folio: -1 } porque los folios tienen el formato SV-FGEN-000-MMYY,
+    // por lo que al ordenar como string, el número más alto será el primero.
+    const lastService = await newService.findOne({})
+        .sort({ folio: -1 })
+        .select('folio')
+        .session(session) // Ejecutar dentro de la sesión (transacción)
+        .lean();
+
+    if (lastService) {
+        const lastFolio = lastService.folio; // Ej: SV-FGEN-120-1125
+
+        // 3. Extraer el MMYY del último folio
+        const parts = lastFolio.split('-');
+        if (parts.length === 4) {
+            const lastMonthYear = parts[3];      // Ej: '1125'
+            const lastSeqString = parts[2];      // Ej: '120'
+            const lastSeq = parseInt(lastSeqString, 10); // Ej: 120
+
+            // 4. Lógica de Reinicio Mensual
+            if (lastMonthYear === currentMonthYear) {
+                // Si el mes/año coincide, solo incrementamos el número secuencial.
+                nextSeq = lastSeq + 1;
+            } else {
+                // Si el mes/año ha cambiado, reiniciamos el contador a 1.
+                nextSeq = 1;
+            }
+        }
+    }
+
+    // 5. Formatear y devolver el nuevo folio
+    const paddedSeq = String(nextSeq).padStart(3, '0');
+    const newFolio = `SV-FGEN-${paddedSeq}-${currentMonthYear}`;
+    
+    return { newFolio, nextSeq };
+};
+
+
 exports.createRequestService = async (req, res) => {
-    try{
-        const newRequestService = new newService(req.body);
-        const savedRequestServices = await newRequestService.save();
-        res.status(200).json({message: 'Success', data: savedRequestServices}) ;
-    }catch (error){
-        console.error('Error al guardar servicio: ', error);
-        res.status(500).json({Error: error.message});
+    // 1. Iniciar una transacción para reducir el riesgo de duplicidad (pero no lo elimina completamente)
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+        // 2. Generar el siguiente folio de forma secuencial
+        const { newFolio } = await getNextFolio(session);
+        
+        // 3. Crear el nuevo registro de servicio con el folio generado
+        const newRequestService = new newService({
+            ...req.body,
+            folio: newFolio // Asignar el folio generado
+        });
+
+        const savedRequestServices = await newRequestService.save({ session });
+
+        // 4. Confirmar la transacción
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(200).json({ message: 'Success', data: savedRequestServices });
+    } catch (error) {
+        // 5. Abortar la transacción en caso de error
+        await session.abortTransaction();
+        session.endSession();
+
+        console.error('Error al guardar servicio (con folio): ', error);
+
+        // El error 11000 es la protección final si se genera un folio duplicado
+        if (error.code === 11000) {
+            // El usuario debe intentar de nuevo para generar un nuevo folio
+            return res.status(409).json({ Error: 'Conflicto: Se intentó generar un folio duplicado. Por favor, inténtalo de nuevo.' });
+        }
+        res.status(500).json({ Error: error.message });
     }
 }
 
