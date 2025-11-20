@@ -32,6 +32,10 @@ exports.getAuthorizedVehicleByPlate = async (req, res) => {
 exports.createAuthorizedVehicle = async (req, res) => {
     try {
         const newVehicle = new Vehicle(req.body);
+        const isVehicle = await Vehicle.findOne({ series: req.body.series });
+        if (isVehicle) {
+            return res.status(409).json({ message: 'El vehículo ya se encuentra registrado' });
+        }
         const savedVehicle = await newVehicle.save();
         res.status(201).json(savedVehicle);
     } catch (error) {

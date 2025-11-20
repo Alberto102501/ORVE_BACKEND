@@ -1,11 +1,12 @@
 const Vehicle = require('../models/vehicle.model');
+const authorizedVehicleModel = require('../models/localWorkshop/authorizedVehicles.model');
 
 // Crear nuevo vehículo
 exports.createVehicle = async (req, res) => {
     try {
         // Validación del número de serie
         const regexVIN = /[A-HJ-NPR-Z0-9]{17}$/;
-        if(regexVIN.test(req.body.series)){
+        if (regexVIN.test(req.body.series)) {
             // Verificar si ya existe un vehículo con el mismo número de serie
             const existingVehicle = await Vehicle.findOne({ series: req.body.series });
             if (existingVehicle) {
@@ -21,7 +22,7 @@ exports.createVehicle = async (req, res) => {
             let nextEcoSequence = 1; // Valor inicial si no hay registros previos
 
             if (lastVehicle && typeof lastVehicle.ecoSequence === 'number') {
-            nextEcoSequence = lastVehicle.ecoSequence + 1;
+                nextEcoSequence = lastVehicle.ecoSequence + 1;
             }
 
             const paddedEco = String(nextEcoSequence).padStart(4, '0');
@@ -37,14 +38,14 @@ exports.createVehicle = async (req, res) => {
             const imagePaths = req.files?.map(file => file.path) || [];
 
             const newVehicle = new Vehicle({
-            ...req.body,
-            numEco,
-            ecoSequence: nextEcoSequence,
-            images: imagePaths
+                ...req.body,
+                numEco,
+                ecoSequence: nextEcoSequence,
+                images: imagePaths
             });
             await newVehicle.save();
             res.status(201).json(newVehicle);
-        }else{
+        } else {
             res.status(400).json({ message: 'El número de serie no es válido. Debe tener 17 caracteres y no contener las letras I, O o Q.' });
         }
     } catch (error) {
@@ -81,57 +82,70 @@ exports.getVehicleById = async (req, res) => {
 
 // Actualizar un vehículo por ID
 exports.updateVehicle = async (req, res) => {
-  try {
-    const { series, existingImages } = req.body;
+    try {
+        const { series, existingImages } = req.body;
 
-    // Validación del número de serie
-    const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
-    if (!vinRegex.test(series)) {
-      return res.status(400).json({ message: 'Número de serie inválido.' });
+        // Validación del número de serie
+        const vinRegex = /^[A-HJ-NPR-Z0-9]{17}$/;
+        if (!vinRegex.test(series)) {
+            return res.status(400).json({ message: 'Número de serie inválido.' });
+        }
+
+        // Verificar duplicado
+        const duplicate = await Vehicle.findOne({
+            series,
+            _id: { $ne: req.params.id }
+        });
+
+        if (duplicate) {
+            return res.status(409).json({ message: 'Este número de serie ya está registrado.' });
+        }
+
+        // Obtener vehículo actual
+        const vehicle = await Vehicle.findById(req.params.id);
+        if (!vehicle) {
+            return res.status(404).json({ message: 'Vehículo no encontrado.' });
+        }
+
+        // Procesar imágenes existentes que el usuario decidió conservar
+        const preservedImages = Array.isArray(existingImages)
+            ? existingImages
+            : existingImages
+                ? [existingImages]
+                : [];
+
+        // Procesar nuevas imágenes cargadas
+        const newImagePaths = req.files?.map(file => file.path) || [];
+
+        // Combinar y limitar a máximo 6
+        const updatedImages = [...preservedImages, ...newImagePaths].slice(0, 6);
+
+        // Actualizar vehículo en authorizedVehicle
+        const authorizedVehicle = await authorizedVehicleModel.findOne({ idVehicle: req.params.id });
+        if (authorizedVehicle) {
+            authorizedVehicle.brand = req.body.brand;
+            authorizedVehicle.subBrand = req.body.subBrand;
+            authorizedVehicle.model = req.body.model;
+            authorizedVehicle.series = req.body.series;
+            authorizedVehicle.color = req.body.color;
+            authorizedVehicle.type = req.body.type;
+            authorizedVehicle.plates = req.body.plates;
+            await authorizedVehicle.save();
+        }
+
+        // Construir objeto actualizado
+        const updatedData = {
+            ...req.body,
+            images: updatedImages
+        };
+
+        // Actualizar en la base de datos
+        const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, updatedData, { new: true });
+
+        res.status(200).json(updatedVehicle);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
-
-    // Verificar duplicado
-    const duplicate = await Vehicle.findOne({
-      series,
-      _id: { $ne: req.params.id }
-    });
-
-    if (duplicate) {
-      return res.status(409).json({ message: 'Este número de serie ya está registrado.' });
-    }
-
-    // Obtener vehículo actual
-    const vehicle = await Vehicle.findById(req.params.id);
-    if (!vehicle) {
-      return res.status(404).json({ message: 'Vehículo no encontrado.' });
-    }
-
-    // Procesar imágenes existentes que el usuario decidió conservar
-    const preservedImages = Array.isArray(existingImages)
-      ? existingImages
-      : existingImages
-        ? [existingImages]
-        : [];
-
-    // Procesar nuevas imágenes cargadas
-    const newImagePaths = req.files?.map(file => file.path) || [];
-
-    // Combinar y limitar a máximo 6
-    const updatedImages = [...preservedImages, ...newImagePaths].slice(0, 6);
-
-    // Construir objeto actualizado
-    const updatedData = {
-      ...req.body,
-      images: updatedImages
-    };
-
-    // Actualizar en la base de datos
-    const updatedVehicle = await Vehicle.findByIdAndUpdate(req.params.id, updatedData, { new: true });
-
-    res.status(200).json(updatedVehicle);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
 };
 
 // Actualizar parcialmente un vehículo por ID
