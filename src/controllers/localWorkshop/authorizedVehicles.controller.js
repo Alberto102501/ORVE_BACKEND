@@ -1,4 +1,4 @@
-const Vehicle = require ('../../models/localWorkshop/authorizedVehicles.model');
+const Vehicle = require('../../models/localWorkshop/authorizedVehicles.model');
 
 exports.getAuthorizedVehicles = async (req, res) => {
     try {
@@ -6,6 +6,26 @@ exports.getAuthorizedVehicles = async (req, res) => {
         res.status(200).json(vehicles);
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener vehículos autorizados', error });
+    }
+}
+
+exports.getAuthorizedVehicleByPlate = async (req, res) => {
+    try {
+        const plates = req.params.plates?.trim();
+
+        if (!plates) {
+            return res.status(400).json('Error al buscar la placa.');
+        }
+
+        const response = await Vehicle.findOne({ plates: new RegExp(`^${plates}$`, 'i') });
+
+        if (!response) {
+            return res.status(404).json({ error: 'Vehículo no encontrado' });
+        }
+
+        res.status(200).json({ message: 'success', data: response });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -23,18 +43,18 @@ exports.updateAuthorizedVehicle = async (req, res) => {
     try {
         const { id } = req.params;
         const updatedVehicle = await Vehicle.findByIdAndUpdate(id, req.body, {
-        new: true,
-        runValidators: true
+            new: true,
+            runValidators: true
         });
 
         if (!updatedVehicle) {
-        return res.status(404).json({ message: 'Vehículo no encontrado' });
+            return res.status(404).json({ message: 'Vehículo no encontrado' });
         }
 
         res.status(200).json(updatedVehicle);
-        } catch (error) {
+    } catch (error) {
         res.status(400).json({ message: 'Error al actualizar vehículo autorizado', error });
-        }
+    }
 }
 
 exports.deleteAuthorizedVehicle = async (req, res) => {

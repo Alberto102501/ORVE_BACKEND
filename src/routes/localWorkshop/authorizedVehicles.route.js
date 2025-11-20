@@ -3,6 +3,7 @@ const router = express.Router();
 const authorizedVehiclesController = require('../../controllers/localWorkshop/authorizedVehicles.controller');
 
 router.get('/', authorizedVehiclesController.getAuthorizedVehicles);
+router.get('/getByPlate/:plates', authorizedVehiclesController.getAuthorizedVehicleByPlate);
 router.post('/', authorizedVehiclesController.createAuthorizedVehicle);
 router.put('/:id', authorizedVehiclesController.updateAuthorizedVehicle);
 router.delete('/:id', authorizedVehiclesController.deleteAuthorizedVehicle);
