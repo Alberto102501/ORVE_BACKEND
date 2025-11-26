@@ -18,6 +18,10 @@ const localVehicleServiceSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  assignment: {
+    type: String,
+    trim: true
+  },
   brand: {
     type: String,
     required: true,
@@ -37,6 +41,14 @@ const localVehicleServiceSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+  },
+  cylinders: {
+    type: String,
+    trim: true
+  },
+  transmission: {
+    type: String,
+    trim: true
   },
   km: {
     type: String,
