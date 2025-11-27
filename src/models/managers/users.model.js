@@ -28,6 +28,9 @@ const userSchema = new mongoose.Schema({
     },
     typeUser: {
         type: String
+    },
+    code: {
+        type: String
     }
 },
     {

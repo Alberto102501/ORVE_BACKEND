@@ -12,5 +12,8 @@ Router.put('/users/:id', usersController.updateUser);
 
 Router.post('/login', usersController.login);
 Router.post('/logout', usersController.logout);
+Router.post('/recovery/sendCode', usersController.sendCode);
+Router.post('/recovery/resetPassword', usersController.resetPassword);
+Router.post('/recovery/verifyCode', usersController.verifyCode);
 
 module.exports = Router;
