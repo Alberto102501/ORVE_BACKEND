@@ -6,7 +6,8 @@ const {
     updateReceipt,
     patchReceipt,
     deleteReceipt,
-    getReceiptByPlate
+    getReceiptByPlate,
+    getReceiptByNumberEmployed
 } = require('../controllers/receipt.controller.js');
 
 const router = Router();
@@ -14,6 +15,7 @@ const router = Router();
 router.get('/byPlate', getReceiptByPlate);
 router.post('/', createReceipt);
 router.get('/', getReceipts);
+router.get('/getByNumberEmployed/:numEmployed', getReceiptByNumberEmployed);
 router.get('/:id', getReceiptById);
 router.put('/:id', updateReceipt);
 router.patch('/:id', patchReceipt);

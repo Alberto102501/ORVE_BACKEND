@@ -56,18 +56,18 @@ exports.getReceiptById = async (req, res) => {
 };
 
 exports.getReceiptByPlate = async (req, res) => {
-  const { plates } = req.query;
+    const { plates } = req.query;
 
-  try {
-    const receipt = await Receipt.findOne({ 'vehicle.plates': plates });
-    if (!receipt) {
-      return res.status(404).json({ message: 'No se encontró ningún vehículo con esa placa.' });
+    try {
+        const receipt = await Receipt.findOne({ 'vehicle.plates': plates });
+        if (!receipt) {
+            return res.status(404).json({ message: 'No se encontró ningún vehículo con esa placa.' });
+        }
+        res.json(receipt);
+    } catch (error) {
+        console.error('Error al buscar por placa:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
     }
-    res.json(receipt);
-  } catch (error) {
-    console.error('Error al buscar por placa:', error);
-    res.status(500).json({ message: 'Error interno del servidor.' });
-  }
 }
 
 exports.updateReceipt = async (req, res) => {
@@ -81,3 +81,20 @@ exports.updateReceipt = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+exports.getReceiptByNumberEmployed = async (req, res) => {
+    const numEmployed = req.params.numEmployed;
+
+    if (!numEmployed) {
+        res.status(400).json({ error: "No hay numero de empleado" });
+        return;
+    }
+
+    try {
+        const response = await Receipt.findOne({ 'user.numEmployed': numEmployed });
+
+       res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({ Error: error.message });
+    }
+}
