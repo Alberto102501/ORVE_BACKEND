@@ -147,12 +147,14 @@ exports.login = async (req, res) => {
 
   try {
     const userFound = await User.findOne({ username });
-    if (!userFound) return res.status(400).json({ message: "Usuario no encontrado." });
+    if (!userFound) return res.status(401).json({ message: "Credenciales incorrectas. Verifique su usuario y contraseña." });
+
+    if (userFound.status === false) return res.status(401).json({ message: "Sin autorización para iniciar sesión." });
 
     const isMatch = await bcrypt.compare(password, userFound.password);
     //const isMatch = password === userFound.password;
 
-    if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });
+    if (!isMatch) return res.status(401).json({ message: "Credenciales incorrectas. Verifique su usuario y contraseña." });
 
     const token = await createAccessToken({ id: userFound._id });
 
@@ -178,6 +180,7 @@ exports.sendCode = async (req, res) => {
     const userFound = await User.findOne({ email });
     if (!userFound) return res.status(400).json({ message: "Usuario no encontrado." });
 
+    if (userFound.status === false) return res.status(400).json({ message: "Usuario no encontrado." });
 
     const code = Math.floor(100000 + Math.random() * 900000);
 
