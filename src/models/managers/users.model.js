@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    submodule: {
+        type: String
+    },
     status: {
         type: Boolean,
         required: true

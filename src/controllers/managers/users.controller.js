@@ -27,11 +27,11 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.createUser = async (req, res) => {
-  const { name, username, module, status, typeUser, email } = req.body;
+  const { name, username, module, submodule, status, typeUser, email } = req.body;
   try {
     const generatedPassword = Math.random().toString(36).slice(-5);
     const passwordHash = await bcrypt.hash(generatedPassword, 10);
-    const newUser = new User({ name, username, module, status, typeUser, email, password: passwordHash, code: null });
+    const newUser = new User({ name, username, module, submodule, status, typeUser, email, password: passwordHash, code: null });
     const savedUser = await newUser.save();
 
     const rutaImagen = path.join(__dirname, '../../img/logo-fiscalia.png');
