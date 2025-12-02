@@ -74,6 +74,9 @@ const VehicleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    isCar: {
+        type: Boolean
+    },
     images: {
         type: [String], // ahora acepta múltiples rutas
         validate: [arrayLimit, '{PATH} excede el límite de 6 imágenes']
