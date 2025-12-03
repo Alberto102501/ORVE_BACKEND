@@ -7,22 +7,22 @@ exports.getRegistersService = async (req, res) => {
         // --- CÁLCULO DE FECHAS ---
         // 1. Fecha para la lógica de VISITAS FRECUENTES (últimos 30 días)
         const THIRTY_DAYS_AGO = new Date();
-        THIRTY_DAYS_AGO.setDate(THIRTY_DAYS_AGO.getDate() - 30); 
-        
+        THIRTY_DAYS_AGO.setDate(THIRTY_DAYS_AGO.getDate() - 30);
+
         // 2. Fecha para la lógica de COOLDOWN DE ALERTA (últimos 30 días)
         // Usamos el mismo periodo de 30 días para el "silencio" de la alerta.
-        const ALERT_COOLDOWN_DATE = new Date(THIRTY_DAYS_AGO.getTime()); 
-        
-        const LIMIT_RECORDS = 100; 
-        
+        const ALERT_COOLDOWN_DATE = new Date(THIRTY_DAYS_AGO.getTime());
+
+        const LIMIT_RECORDS = 100;
+
         // =========================================================================
         // 1. OPTIMIZACIÓN DE PERSISTENCIA: Obtener todas las placas con alertas RECIENTES
         // Buscamos CUALQUIER alerta de recurrencia creada en los últimos 30 días (leída o no).
         const existingAlerts = await Notification.find({
             type: 'RECURRENCE_ALERT',
             // Buscamos cualquier alerta creada desde la fecha de Cooldown
-            createdAt: { $gte: ALERT_COOLDOWN_DATE } 
-        }).select('plate').lean(); 
+            createdAt: { $gte: ALERT_COOLDOWN_DATE }
+        }).select('plate').lean();
 
         // Convertir la lista a un Set para búsquedas O(1)
         const platesWithActiveAlert = new Set(existingAlerts.map(alert => alert.plate));
@@ -31,49 +31,49 @@ exports.getRegistersService = async (req, res) => {
         // 2. Pipeline de Agregación OPTIMIZADO (Solo procesa los 100 más recientes)
         const services = await newService.aggregate([
             { $sort: { createdAt: -1 } },
-            { $limit: LIMIT_RECORDS }, 
+            { $limit: LIMIT_RECORDS },
             {
                 $lookup: {
-                    from: 'vehicleservices', 
-                    let: { current_plate: "$plate" }, 
+                    from: 'vehicleservices',
+                    let: { current_plate: "$plate" },
                     pipeline: [
                         {
                             $match: {
                                 $expr: {
                                     $and: [
-                                        { $eq: ["$plate", "$$current_plate"] }, 
+                                        { $eq: ["$plate", "$$current_plate"] },
                                         { $eq: ["$status", "Aceptado"] }, // Solo Aceptado
-                                        { $gte: ["$createdAt", THIRTY_DAYS_AGO] } 
+                                        { $gte: ["$createdAt", THIRTY_DAYS_AGO] }
                                     ]
                                 }
                             }
                         },
-                        { $count: "visitCount" } 
+                        { $count: "visitCount" }
                     ],
-                    as: "frequentVisitorInfo" 
+                    as: "frequentVisitorInfo"
                 }
             },
             { $addFields: { visitCount: { $ifNull: [{ $arrayElemAt: ["$frequentVisitorInfo.visitCount", 0] }, 0] } } },
             { $addFields: { isFrequentVisitor: { $gte: ["$visitCount", 3] } } },
             { $project: { frequentVisitorInfo: 0 } }
         ]);
-        
+
         // 3. Persistencia de la Alerta (Crear el documento de Notificación)
         const alertsToCreate = [];
         for (const service of services) {
             const vehiclePlate = service.plate;
-            
+
             if (service.isFrequentVisitor) {
                 // VERIFICACIÓN CORREGIDA: Si ya existe una alerta (leída o no) creada en los últimos 30 días, NO creamos otra.
                 if (!platesWithActiveAlert.has(vehiclePlate)) {
                     const message = `ALERTA: Placas ${vehiclePlate} visitó ${service.visitCount} veces en 30 días. Folio ${service.folio}.`;
-                    
+
                     alertsToCreate.push({
                         plate: vehiclePlate,
                         message: message,
                         type: 'RECURRENCE_ALERT',
                         // Se inserta como no leída por defecto
-                        isRead: false 
+                        isRead: false
                     });
 
                     // Añadir al Set para prevenir duplicados DENTRO de esta misma ejecución
@@ -86,37 +86,37 @@ exports.getRegistersService = async (req, res) => {
         if (alertsToCreate.length > 0) {
             try {
                 // ordered: false permite que se inserten los documentos no duplicados
-                await Notification.insertMany(alertsToCreate, { ordered: false }); 
+                await Notification.insertMany(alertsToCreate, { ordered: false });
             } catch (error) {
                 // El código de error 11000 se maneja (debido al índice único parcial)
                 if (error.code === 11000) {
                     console.log('Advertencia: Se detectó e ignoró un intento de alerta duplicada (concurrencia).');
                 } else {
-                    throw error; 
+                    throw error;
                 }
             }
         }
-        
+
         // 4. Devolver la respuesta
-        res.status(200).json({message: 'Success', data: services});
+        res.status(200).json({ message: 'Success', data: services });
 
     } catch (error) {
         console.error('Error en getRegistersService (Final):', error);
-        res.status(500).json({Error: error.message});
+        res.status(500).json({ Error: error.message });
     }
 };
 
 exports.getById = async (req, res) => {
-    try{
+    try {
         const register = await newService.findById(req.params.id);
 
-        if(!register) {
-            res.status(404).json({message: 'Registro no encontrado'});
+        if (!register) {
+            res.status(404).json({ message: 'Registro no encontrado' });
         }
 
-        res.status(200).json({message: 'Success', data: register});
-    }catch(error){
-        res.status(500).json({error: error.message});
+        res.status(200).json({ message: 'Success', data: register });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 }
 
@@ -135,7 +135,7 @@ const getNextFolio = async (session) => {
     // Usamos $sort: { folio: -1 } porque los folios tienen el formato SV-FGEN-000-MMYY,
     // por lo que al ordenar como string, el número más alto será el primero.
     const lastService = await newService.findOne({})
-        .sort({ folio: -1 })
+        .sort({ createdAt: -1 })
         .select('folio')
         .session(session) // Ejecutar dentro de la sesión (transacción)
         .lean();
@@ -164,7 +164,7 @@ const getNextFolio = async (session) => {
     // 5. Formatear y devolver el nuevo folio
     const paddedSeq = String(nextSeq).padStart(3, '0');
     const newFolio = `SV-FGEN-${paddedSeq}-${currentMonthYear}`;
-    
+
     return { newFolio, nextSeq };
 };
 
@@ -177,7 +177,7 @@ exports.createRequestService = async (req, res) => {
     try {
         // 2. Generar el siguiente folio de forma secuencial
         const { newFolio } = await getNextFolio(session);
-        
+
         // 3. Crear el nuevo registro de servicio con el folio generado
         const newRequestService = new newService({
             ...req.body,
@@ -208,43 +208,43 @@ exports.createRequestService = async (req, res) => {
 }
 
 exports.updateRequestService = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = { ...req.body };
+    try {
+        const { id } = req.params;
+        const updateData = { ...req.body };
 
-    // Si el status cambia a Aceptado o Rechazado, registra la fecha
-    if (['Aceptado', 'Rechazado'].includes(req.body.status)) {
-      updateData.acceptanceDate = new Date();
+        // Si el status cambia a Aceptado o Rechazado, registra la fecha
+        if (['Aceptado', 'Rechazado'].includes(req.body.status)) {
+            updateData.acceptanceDate = new Date();
+        }
+
+        // Si el status vuelve a Pendiente, borra la fecha
+        if (req.body.status === 'Pendiente') {
+            updateData.acceptanceDate = null;
+        }
+
+        const updatedService = await newService.findByIdAndUpdate(id, updateData, {
+            new: true,
+            runValidators: true
+        });
+
+        res.status(200).json({ message: 'Registro actualizado', data: updatedService });
+    } catch (error) {
+        console.error('Error al actualizar servicio:', error);
+        res.status(500).json({ error: error.message });
     }
-
-    // Si el status vuelve a Pendiente, borra la fecha
-    if (req.body.status === 'Pendiente') {
-      updateData.acceptanceDate = null;
-    }
-
-    const updatedService = await newService.findByIdAndUpdate(id, updateData, {
-      new: true,
-      runValidators: true
-    });
-
-    res.status(200).json({ message: 'Registro actualizado', data: updatedService });
-  } catch (error) {
-    console.error('Error al actualizar servicio:', error);
-    res.status(500).json({ error: error.message });
-  }
 };
 
 exports.updateVehicleStatusByFolio = async (req, res) => {
     // 1. Obtener el folio de la URL
-    const { folio } = req.params; 
+    const { folio } = req.params;
     // 2. Obtener el nuevo estado del cuerpo (body)
-    const { status } = req.body; 
+    const { status } = req.body;
 
     try {
         // Buscar el vehículo por el folio de la solicitud y actualizar su estado
         const vehicle = await newService.findOneAndUpdate(
             { folio: folio }, // Condición: folio debe coincidir
-            { status: status }, 
+            { status: status },
             { new: true }
         );
 
@@ -284,13 +284,13 @@ exports.finalizeVehicleService = async (req, res) => {
             // $push añade un nuevo elemento al array 'exit'
             const updatedService = await newService.findByIdAndUpdate(
                 id,
-                { 
+                {
                     $set: updateData, // Actualiza status y acceptanceDate
                     $push: { exit: exit } // Añade el subdocumento de egreso completo
                 },
-                { 
-                    new: true, 
-                    runValidators: true 
+                {
+                    new: true,
+                    runValidators: true
                 }
             );
 
@@ -300,15 +300,15 @@ exports.finalizeVehicleService = async (req, res) => {
 
             return res.status(200).json({ message: 'Servicio finalizado y egreso registrado', data: updatedService });
         }
-        
+
         return res.status(400).json({ message: 'Datos de egreso incompletos.' });
 
     } catch (error) {
         // Manejo detallado de errores de Mongoose (validación)
         if (error.name === 'ValidationError') {
-             return res.status(400).json({ 
-                message: 'Error de validación al finalizar el servicio.', 
-                errorDetail: error.message 
+            return res.status(400).json({
+                message: 'Error de validación al finalizar el servicio.',
+                errorDetail: error.message
             });
         }
         console.error('Error al finalizar servicio:', error);
@@ -317,20 +317,20 @@ exports.finalizeVehicleService = async (req, res) => {
 };
 
 exports.getRequestByFolio = async (req, res) => {
-  try {
-    const folio = req.params.folio?.trim();
-    if (!folio) {
-      return res.status(400).json({ message: "Folio inválido o faltante" });
+    try {
+        const folio = req.params.folio?.trim();
+        if (!folio) {
+            return res.status(400).json({ message: "Folio inválido o faltante" });
+        }
+
+        const request = await newService.findOne({ folio });
+
+        if (!request) {
+            return res.status(404).json({ message: "Solicitud no encontrada" });
+        }
+
+        res.status(200).json({ message: 'success', data: request });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-
-    const request = await newService.findOne({ folio });
-
-    if (!request) {
-      return res.status(404).json({ message: "Solicitud no encontrada" });
-    }
-
-    res.status(200).json({ message: 'success', data: request });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 };
