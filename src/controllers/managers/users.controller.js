@@ -163,6 +163,7 @@ exports.login = async (req, res) => {
     dataToSend = {
       username: userFound.username,
       module: userFound.module,
+      submodule: userFound.submodule,
       typeUser: userFound.typeUser
     }
 
