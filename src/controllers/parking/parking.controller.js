@@ -22,6 +22,15 @@ exports.getParking = async (req, res) => {
     }
 };
 
+exports.getParkingsOfMotorcycle = async (req, res) => {
+    try {
+        const parkings = await Parking.find({ isMotorcycle: true });
+        res.json(parkings);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 exports.updateParking = async (req, res) => {
     const { id } = req.params;
     const { info, tag, status } = req.body;

@@ -37,6 +37,9 @@ const particularVehicleSchema = new mongoose.Schema({
     numberCard: {
         type: String
     },
+    carOrMotor: {
+        type: String
+    },
     parking: {
         type: Boolean,
         default: false

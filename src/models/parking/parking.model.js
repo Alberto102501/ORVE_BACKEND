@@ -28,6 +28,9 @@ const parkingSchema = new mongoose.Schema({
         type: String,
         trim: true,
         default: "Disponible"
+    },
+    isMotorcycle: {
+        type: Boolean
     }
 }, {
     timestamps: false
