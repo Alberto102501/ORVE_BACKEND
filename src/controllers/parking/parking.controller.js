@@ -58,3 +58,29 @@ exports.updateParking = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+exports.updateParkingByReceipt = async (req, res) => {
+    const { id } = req.params;
+
+    console.log(req.body);
+
+    const updateFields = {};
+    updateFields.status = "Disponible";
+    updateFields.info = {};
+
+    try {
+        const updatedParking = await Parking.findOneAndUpdate(
+            { "info.parkId": id },
+            { $set: updateFields },
+            { new: true }
+        );
+
+        if (!updatedParking) {
+            return res.status(200).json({ message: 'No tiene Parking' });
+        }
+
+        res.json(updatedParking);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

@@ -1,6 +1,5 @@
 const InfoAddFuel = require('../../models/fuel/infoAdditional.model');
 const Receipts = require('../../models/receipt.model');
-const ParticularVehicle = require('../../models/parking/particularVehicles.model');
 const Load = require('../../models/fuel/load.model');
 
 
@@ -51,12 +50,12 @@ exports.putInfoByCardNumber = async (req, res) => {
 
         // Primero, intentar actualizar un subdocumento existente que coincida en mes y año
         let updatedInfo = await InfoAddFuel.findOneAndUpdate(
-            { 
-                numberCard: numberCard, 
+            {
+                numberCard: numberCard,
                 "fuelDetails.month": fuelDetails.month,
                 "fuelDetails.year": fuelDetails.year
             },
-            { 
+            {
                 $set: { "fuelDetails.$": fuelDetails } // Actualizar el subdocumento coincidente
             },
             { new: true }
@@ -94,9 +93,6 @@ exports.getProcessedFuelInfo = async (req, res) => {
         // Obtener datos de 'receipts' (VehicleService)
         const receipts = await Receipts.find().lean();
 
-        // Obtener datos de 'parking'
-        const parking = await ParticularVehicle.find().lean();
-
         // Mapear y combinar ambas fuentes en una sola lista
         const allVehicles = [
             ...receipts.map(item => ({
@@ -108,16 +104,6 @@ exports.getProcessedFuelInfo = async (req, res) => {
                 model: item.vehicle?.model,
                 series: item.vehicle?.series,
                 user_name: item.user?.name,
-            })),
-            ...parking.map(item => ({
-                id: item.numberCard,
-                type: 'Particular',
-                plates: item.vehiclePlates,
-                brand: item.vehicleBrand,
-                sub_brand: item.vehicleSubBrand,
-                model: item.vehicleModel,
-                series: item.vehicleSeries,
-                user_name: item.completeName || '',
             }))
         ];
 
