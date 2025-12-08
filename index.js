@@ -42,8 +42,8 @@ app.use('/api/managers', managersRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/receipts', receiptRoutes);
-app.use('/api/parkingPlace', parkingRoutes);
 
+app.use('/api/parkingPlace', parkingRoutes);
 app.use('/api/parking/', particularVehicleRoutes);
 
 app.use('/api/fuel', loadRoutes);

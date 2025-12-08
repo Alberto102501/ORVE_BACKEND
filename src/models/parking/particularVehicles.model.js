@@ -31,12 +31,6 @@ const particularVehicleSchema = new mongoose.Schema({
     vehicleModel: {
         type: String
     },
-    vehicleSeries: {
-        type: String
-    },
-    numberCard: {
-        type: String
-    },
     carOrMotor: {
         type: String
     },

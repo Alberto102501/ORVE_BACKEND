@@ -19,9 +19,9 @@ exports.getAuthorizedVehicleByPlate = async (req, res) => {
 
         const response = await Vehicle.findOne({ plates: new RegExp(`^${plates}$`, 'i') });
 
-        if (!response) {
-            return res.status(404).json({ error: 'Vehículo no encontrado' });
-        }
+        // if (!response) {
+        //     return res.status(404).json({ error: 'Vehículo no encontrado' });
+        // }
 
         res.status(200).json({ message: 'success', data: response });
     } catch (error) {

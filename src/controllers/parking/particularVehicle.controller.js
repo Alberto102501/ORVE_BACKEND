@@ -38,3 +38,35 @@ exports.updateParticularVehicle = async (req, res) => {
         res.status(400).json({ message: 'Error al actualizar vehículo particular', error });
     }
 }
+
+exports.checkUniqueness = async (req, res) => {
+    try {
+        const { plates } = req.query; 
+
+        // Inicializamos el estado de duplicidad de la placa
+        let platesDuplicate = false;
+        
+        // 1. Verificar Placa (Solo si el valor de plates está presente)
+        if (plates) {
+            // Se recomienda usar la búsqueda insensible a mayúsculas ($regex: /plates/i)
+            // para evitar problemas de case-sensitivity, si tu base de datos lo requiere.
+            const vehicleWithPlate = await particularVehicle.findOne({ vehiclePlates: plates });
+            
+            if (vehicleWithPlate) {
+                platesDuplicate = true;
+            }
+        }
+        
+        // Determinar el duplicado general (que es lo mismo que platesDuplicate)
+        const isDuplicate = platesDuplicate;
+
+        res.status(200).json({
+            isDuplicate: isDuplicate, 
+            platesDuplicate: platesDuplicate
+        });
+
+    } catch (error) {
+        console.error('Error interno del servidor al verificar unicidad:', error);
+        res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+};
