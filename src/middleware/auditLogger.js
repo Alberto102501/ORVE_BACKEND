@@ -1,4 +1,4 @@
-const AuditLog = require('../models/AuditLog'); // Asegúrate de que la ruta sea correcta
+const AuditLog = require('../models/Audit/auditLog.model'); // Asegúrate de que la ruta sea correcta
 
 const auditLogger = async (req, res, next) => {
     // Solo registramos si el método es POST, PUT o PATCH
