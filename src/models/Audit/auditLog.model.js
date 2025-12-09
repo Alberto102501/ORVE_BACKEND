@@ -9,10 +9,11 @@ const AuditLogSchema = new mongoose.Schema({
     // Información del Usuario/Sistema
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Opcional: Si el usuario está autenticado
     userName: { type: String }, // Nombre de usuario del equipo (si se envía en headers) o del sistema
-    
+
     // Contenido
-    changes: { type: Object }, // Datos enviados en el cuerpo de la solicitud (req.body)
-    
+    newData: { type: Object }, // Datos nuevos o modificaciones (req.body)
+    oldData: { type: Object }, // Estado anterior del documento (antes de la modificación)
+
     // Metadatos
     timestamp: { type: Date, default: Date.now }
 });
