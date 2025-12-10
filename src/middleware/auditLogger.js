@@ -2,12 +2,12 @@ const AuditLog = require('../models/Audit/auditLog.model'); // Asegúrate de que
 
 const auditLogger = (Model = null) => async (req, res, next) => {
     // Solo registramos si el método es POST, PUT o PATCH
-    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
 
         let previousState = null;
 
         // Si es una actualización y tenemos el Modelo y el ID, buscamos el estado anterior
-        if (['PUT', 'PATCH'].includes(req.method) && Model && req.params.id) {
+        if (['PUT', 'PATCH', 'DELETE'].includes(req.method) && Model && req.params.id) {
             try {
                 const doc = await Model.findById(req.params.id).lean();
                 if (doc) {

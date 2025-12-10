@@ -8,8 +8,8 @@ const User = require('../models/users.model');
 const Router = express.Router();
 
 Router.get('/', /*validateToken.authRequired,*/ userController.getUsers);
-Router.post('/', userController.createUser);
+Router.post('/', auditLogger(User), userController.createUser);
 Router.put('/:id', auditLogger(User), userController.updateUser);
-Router.delete('/:id', userController.deleteUser);
+Router.delete('/:id', auditLogger(User), userController.deleteUser);
 
 module.exports = Router;
