@@ -28,11 +28,10 @@ exports.createRequest = async (req, res) => {
             items,
             type
         });
-        console.log(newRequest);
         const savedRequest = await newRequest.save();
         res.json(savedRequest);
     } catch (error) {
-        return res.status(500).json({ message: "Something went wrong "+error });
+        return res.status(500).json({ message: "Something went wrong " + error });
     }
 };
 
