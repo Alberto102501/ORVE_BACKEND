@@ -18,6 +18,22 @@ const auditLogger = (Model = null) => async (req, res, next) => {
             }
         }
 
+        if (req.method === 'PUT' && req.originalUrl.includes('/api/fuel/info/')) {
+            try {
+                const doc = await Model.findOne({
+                    numberCard: req.params.numberCard,
+                    "fuelDetails.month": req.body.fuelDetails.month,
+                    "fuelDetails.year": req.body.fuelDetails.year
+                }).lean();
+                if (doc) {
+                    previousState = doc;
+                }
+            } catch (error) {
+                console.error('Error al obtener el estado anterior para auditoría:', error);
+            }
+        }
+
+
         // 1. Extraer datos relevantes
         const logData = {
             method: req.method,
