@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const workshopRequestController = require('../../controllers/baseWorkshop/workshopRequest.controller');
+const auditLogger = require('../../middleware/auditLogger.js');
+const WorkshopRequest = require('../../models/baseWorkshop/workshopRequest.model');
 
 // Ruta para crear una nueva solicitud
 // POST /api/workshop-requests
-router.post('/', workshopRequestController.createRequest);
+router.post('/', auditLogger(WorkshopRequest), workshopRequestController.createRequest);
 
 // GET citas de hoy
 router.get('/available-today', workshopRequestController.getAvailableAppointmentsForToday);
@@ -25,10 +27,10 @@ router.get('/getByPlate/:plate', workshopRequestController.getRequestProductByPl
 
 // Ruta para actualizar una solicitud por su ID
 // PUT /api/workshop-requests/:id
-router.put('/:id', workshopRequestController.updateRequest);
+router.put('/:id', auditLogger(WorkshopRequest), workshopRequestController.updateRequest);
 
 // Ruta para eliminar una solicitud por su ID
 // DELETE /api/workshop-requests/:id
-router.delete('/:id', workshopRequestController.deleteRequest);
+router.delete('/:id', auditLogger(WorkshopRequest), workshopRequestController.deleteRequest);
 
 module.exports = router;
