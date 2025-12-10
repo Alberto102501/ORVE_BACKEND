@@ -33,6 +33,21 @@ const auditLogger = (Model = null) => async (req, res, next) => {
             }
         }
 
+        if (req.method === 'PUT' && req.originalUrl.includes('/api/parkingPlace/receipt/')) {
+            try {
+                const doc = await Model.findOne({
+                    "info.parkId": req.params.id,
+                }).lean();
+                if (doc) {
+                    previousState = doc;
+                } else {
+                    previousState = { message: "No tenia Parking" };
+                }
+            } catch (error) {
+                console.error('Error al obtener el estado anterior para auditoría:', error);
+            }
+        }
+
 
         // 1. Extraer datos relevantes
         const logData = {
