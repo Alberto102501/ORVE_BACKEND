@@ -164,8 +164,7 @@ exports.login = async (req, res) => {
       username: userFound.username,
       module: userFound.module,
       submodule: userFound.submodule,
-      typeUser: userFound.typeUser,
-      token: token
+      typeUser: userFound.typeUser
     }
 
     res.status(200).json({ success: true, data: dataToSend });
