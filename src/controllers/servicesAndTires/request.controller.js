@@ -2,7 +2,7 @@ const Request = require('../../models/servicesAndTires/request.model.js');
 
 exports.getRequests = async (req, res) => {
     try {
-        const requests = await Request.find();
+        const requests = await Request.find().sort({ createdAt: -1 });
         res.json(requests);
     } catch (error) {
         return res.status(500).json({ message: "Something went wrong" });
