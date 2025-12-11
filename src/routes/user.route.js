@@ -7,9 +7,9 @@ const User = require('../models/users.model');
 
 const Router = express.Router();
 
-Router.get('/', userController.getUsers);
-Router.post('/', auditLogger(User), userController.createUser);
+Router.get('/', validateToken.authRequired, userController.getUsers);
+Router.post('/', validateToken.authRequired, auditLogger(User), userController.createUser);
 Router.put('/:id', validateToken.authRequired, auditLogger(User), userController.updateUser);
-Router.delete('/:id', auditLogger(User), userController.deleteUser);
+Router.delete('/:id', validateToken.authRequired, auditLogger(User), userController.deleteUser);
 
 module.exports = Router;

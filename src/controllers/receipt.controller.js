@@ -60,9 +60,9 @@ exports.getReceiptByPlate = async (req, res) => {
 
     try {
         const receipt = await Receipt.findOne({ 'vehicle.plates': plates });
-        if (!receipt) {
-            return res.status(404).json({ message: 'No se encontró ningún vehículo con esa placa.' });
-        }
+        // if (!receipt) {
+        //     return res.status(404).json({ message: 'No se encontró ningún vehículo con esa placa.' });
+        // }
         res.json(receipt);
     } catch (error) {
         console.error('Error al buscar por placa:', error);
