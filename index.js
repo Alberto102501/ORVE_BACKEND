@@ -12,7 +12,8 @@ const app = express();
 
 app.use(cors({
     origin: 'http://localhost:5173', // URL del frontend
-    credentials: true,             // NECESARIO para aceptar la cookie
+    credentials: true,          // NECESARIO para aceptar la cookie
+    allowedHeaders: ['Content-Type', 'Authorization', 'userName']
 }));
 app.use(express.json({ limit: '20mb' }));
 app.use(morgan('dev'));

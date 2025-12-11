@@ -3,15 +3,16 @@ const router = express.Router();
 const orderProductController = require('../../controllers/baseWorkshop/orderProduct.controller');
 const auditLogger = require('../../middleware/auditLogger');
 const OrderProduct = require('../../models/baseWorkshop/orderProduct.model');
+const validateToken = require('../../middleware/validateToken.js');
 
-router.post('/', auditLogger(OrderProduct), orderProductController.createOrder);
+router.post('/', validateToken.authRequired, auditLogger(OrderProduct), orderProductController.createOrder);
 
-router.get('/', orderProductController.getOrders);
+router.get('/', validateToken.authRequired, orderProductController.getOrders);
 
-router.get('/:id', orderProductController.getOrderById);
+router.get('/:id', validateToken.authRequired, orderProductController.getOrderById);
 
-router.put('/:id', auditLogger(OrderProduct), orderProductController.updateOrder);
+router.put('/:id', validateToken.authRequired, auditLogger(OrderProduct), orderProductController.updateOrder);
 
-router.delete('/:id', auditLogger(OrderProduct), orderProductController.deleteOrder);
+router.delete('/:id', validateToken.authRequired, auditLogger(OrderProduct), orderProductController.deleteOrder);
 
 module.exports = router;

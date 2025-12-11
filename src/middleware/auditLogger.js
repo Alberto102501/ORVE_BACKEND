@@ -74,7 +74,6 @@ const auditLogger = (Model = null) => async (req, res, next) => {
     res.on('finish', async () => {
         // Opcional: Solo loguear si la petición fue exitosa (2xx) o error de cliente (4xx), 
         // pero generalmente para auditoría queremos registrar todo intento.
-
         try {
             const logData = {
                 method: req.method,
@@ -82,7 +81,7 @@ const auditLogger = (Model = null) => async (req, res, next) => {
                 ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress,
 
                 // Nombre de sistema desde headers si existe
-                userName: req.headers['x-user-system-name'] || 'Desconocido',
+                userName: req.headers['username'] || 'Desconocido',
 
                 // ID de usuario autenticado (si middleware de auth corrió antes)
                 userId: req.user?._id || req.user?.id,
