@@ -7,10 +7,10 @@ const User = require('../../models/managers/users.model');
 
 const Router = express.Router();
 
-Router.get('/users', usersController.getUsers);
+Router.get('/users', validateToken.authRequired, usersController.getUsers);
 // Router.get('/:id', );
-Router.post('/users', auditLogger(User), usersController.createUser);
-Router.put('/users/:id', auditLogger(User), usersController.updateUser);
+Router.post('/users', validateToken.authRequired, auditLogger(User), usersController.createUser);
+Router.put('/users/:id', validateToken.authRequired, auditLogger(User), usersController.updateUser);
 
 Router.post('/login', usersController.login);
 Router.post('/logout', usersController.logout);
